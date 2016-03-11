@@ -36,7 +36,7 @@ If you want to adjust the default options, provide the path of a options file.
 You can also call debby from php and do what every you want.
 
 ``` php
-require_once(__DIR__.'/trunk/vendor/autoload.php');
+require_once(__DIR__.'/vendor/autoload.php');
 
 use alsvanzelf\debby;
 

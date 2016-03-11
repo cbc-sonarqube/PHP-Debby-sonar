@@ -1,0 +1,2 @@
+0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/src/cron.php "devops@example.com"
+0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/src/cron.php /var/www/debby-options.json

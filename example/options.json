@@ -1,0 +1,4 @@
+{
+	"notify_address": "devops@example.com",
+	"root_dir": "/path/to/project/"
+}

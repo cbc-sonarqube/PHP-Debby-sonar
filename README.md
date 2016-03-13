@@ -1,4 +1,4 @@
-# debby
+# Debby
 
 Debby checks your project dependencies and tells you when to update.
 
@@ -48,11 +48,6 @@ $debby = new debby\debby($options);
 $results = $debby->check();
 $debby->notify($results);
 ```
-
-
-## To Do
-
-...
 
 
 ## Contributing

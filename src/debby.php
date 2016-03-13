@@ -127,7 +127,19 @@ public function notify(array $results) {
 	$body    = var_export($results, true);
 	$body   .= PHP_EOL.PHP_EOL.'Debby';
 	
-	mail($this->options['notify_address'], $subject, $body);
+	$message = new \Swift_Message();
+	$message->setFrom($this->options['notify_address']);
+	$message->setTo($this->options['notify_address']);
+	$message->setSubject($subject);
+	$message->setBody($body);
+	
+	$smtp_login = $this->options['smtp_login'];
+	$transport = new \Swift_SmtpTransport($smtp_login['host'], $smtp_login['port'], $smtp_login['ssl']);
+	$transport->setUsername($smtp_login['user']);
+	$transport->setPassword($smtp_login['pass']);
+	
+	$mailer = new \Swift_Mailer($transport);
+	$mailer->send($message);
 }
 
 }

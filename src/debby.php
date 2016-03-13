@@ -14,6 +14,7 @@ private $options;
  *                                    required when using ->notify()
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
+ *        @var array  $smtp_login     required when using ->notify()
  * }
  */
 public function __construct(array $options=array()) {

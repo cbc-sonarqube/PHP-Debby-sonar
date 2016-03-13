@@ -31,6 +31,8 @@ If you want to adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/src/cron.php /var/www/debby-options.json`
 
+See [example/options.json](/example/options.json) for all possible options.
+
 ### Custom
 
 You can also call debby from php and do what every you want.
@@ -42,12 +44,18 @@ use alsvanzelf\debby;
 
 $options = [
 	'notify_address' => 'devops@example.com',
+	'root_dir'       => '/path/to/project/',
+	'smtp_login'     => [
+		// ...
+	],
 ];
 $debby = new debby\debby($options);
 
 $results = $debby->check();
 $debby->notify($results);
 ```
+
+See [example/custom.php](/example/custom.php) for a complete example.
 
 
 ## Contributing

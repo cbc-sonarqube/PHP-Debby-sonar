@@ -21,7 +21,7 @@ There are three ways to talk to Debby.
 Set up a cron to run debby periodically.
 You just provide an email address where to send results to.
 
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/src/cron.php "devops@example.com"`
+`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/src/cron.php devops@example.com`
 
 This will send you a report 8 o'clock, every Monday morning.
 

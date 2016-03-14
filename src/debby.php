@@ -18,7 +18,7 @@ private $options;
  * }
  */
 public function __construct(array $options=array()) {
-	$this->arrange_environment();
+	self::arrange_environment();
 	
 	$this->options = $options;
 	
@@ -27,7 +27,12 @@ public function __construct(array $options=array()) {
 	}
 }
 
-public function arrange_environment() {
+/**
+ * arrange a good environment for debugging and cli interaction
+ * 
+ * @return void
+ */
+protected static function arrange_environment() {
 	ini_set('display_startup_errors', 1);
 	ini_set('display_errors', 1);
 	error_reporting(-1);
@@ -119,6 +124,14 @@ public function check() {
 	return $update_packages;
 }
 
+/**
+ * send an email with the results from ->check()
+ * 
+ * @note requires options with `notify_address` and `smtp_login` keys
+ * 
+ * @param  array  $results
+ * @return void
+ */
 public function notify(array $results) {
 	if (empty($this->options['notify_address'])) {
 		throw new exception('can not notify without email address of the recipient');

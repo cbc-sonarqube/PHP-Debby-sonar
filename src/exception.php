@@ -4,6 +4,11 @@ namespace alsvanzelf\debby;
 
 class exception extends \Exception {
 
+/**
+ * terminate the cli, explaining why the exception was thrown
+ * 
+ * @return void
+ */
 public function stop() {
 	if ($this->getCode()) {
 		echo '#'.$this->getCode().': ';
@@ -17,6 +22,12 @@ public function stop() {
 	exit(1);
 }
 
+/**
+ * get a string representation of an E_* error constant
+ * 
+ * @param  int    $error_severity one of native E_* consts
+ * @return string
+ */
 public static function get_php_native_error_message($error_severity) {
 	$possible_errors = [
 		E_ERROR             => 'error',
@@ -45,6 +56,12 @@ public static function get_php_native_error_message($error_severity) {
 	return $possible_errors[$error_severity];
 }
 
+/**
+ * get a string representation of a JSON_ERROR_* constant
+ * 
+ * @param  int    $error_code one of native JSON_ERROR_* consts
+ * @return string
+ */
 public static function get_json_error_message($error_code) {
 	$possible_errors = [
 		JSON_ERROR_NONE             => 'No error has occurred',

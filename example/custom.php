@@ -5,6 +5,7 @@ require_once(__DIR__.'/vendor/autoload.php');
 use alsvanzelf\debby;
 
 $options = [
+	'notify_all_ok'  => true,
 	'notify_address' => 'devops@example.com',
 	'root_dir'       => '/path/to/project/',
 	'smtp_login'     => [

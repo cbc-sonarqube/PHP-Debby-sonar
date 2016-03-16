@@ -10,6 +10,8 @@ private $options;
  * make changes to default behavior
  *
  * @param array $options {
+ *        @var bool   $notify_all_ok  notify also if no packages need an update
+ *                                    optional, defaults to true
  *        @var string $notify_address email address where notification will be sent to
  *                                    required when using ->notify()
  *        @var string $root_dir       root directory of the project
@@ -24,6 +26,9 @@ public function __construct(array $options=array()) {
 	
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
+	}
+	if (!isset($this->options['notify_all_ok'])) {
+		$this->options['notify_all_ok'] = true;
 	}
 }
 
@@ -143,6 +148,9 @@ public function check() {
 public function notify(array $results) {
 	if (empty($this->options['notify_address'])) {
 		throw new exception('can not notify without email address of the recipient');
+	}
+	if (empty($results) && $this->options['notify_all_ok'] === false) {
+		return;
 	}
 	
 	list($subject, $body) = (empty($results)) ? self::get_fine_email() : self::get_update_email($results);

@@ -114,6 +114,14 @@ public function check() {
 			continue;
 		}
 		
+		// keep sha1 hashes short
+		if (strlen($installed_version) === 40) {
+			$installed_version = substr($installed_version, 0, 7);
+		}
+		if (strlen($possible_version[1]) === 40) {
+			$possible_version[1] = substr($possible_version[1], 0, 7);
+		}
+		
 		$update_packages[$package_name] = array(
 			'required'  => $required_packages[$package_name],
 			'installed' => $installed_version,

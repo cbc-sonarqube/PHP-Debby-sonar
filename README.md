@@ -16,7 +16,7 @@ composer require alsvanzelf/debby
 
 There are three ways to talk to Debby.
 
-#### Out of the box
+#### Email out of the box
 
 Set up a cron to run debby periodically.
 You just provide an email address where to send results to.
@@ -31,7 +31,9 @@ If you want to adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
-See [example/options.json](/example/options.json) for all possible options.
+Mainly, you can tell Debby where to send the notification (email or GitHub ticket).
+
+See [example/options.json](/README.md#Options) for all possible options.
 
 #### Custom
 
@@ -64,8 +66,9 @@ Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
 `notify_all_ok` | `bool` | `true` | Notify also if no packages need an update.
 `notify_address` | `string` | `''` | Email address where notification will be sent to. **Required** when using `->notify()`.
+`notify_github` | `array` | `null` | Containing keys for `token` ([personal access token](https://github.com/settings/tokens)) and `repository` (i.e. `lode/debby`).
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`smtp_login` | `array` | `null` | **Required** when using `->notify()`.
+`smtp_login` | `array` | `null` | **Required** when using `->notify()`. Containing keys for `host`, `port`, `ssl`, `user`, `pass`.
 
 
 ## FAQ

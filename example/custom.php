@@ -7,6 +7,10 @@ use alsvanzelf\debby;
 $options = [
 	'notify_all_ok'  => true,
 	'notify_address' => 'devops@example.com',
+	'notify_github'  => [
+		'token'      => 'user token',
+		'repository' => 'example/project',
+	],
 	'root_dir'       => '/path/to/project/',
 	'smtp_login'     => [
 		'host' => 'smtp.example.com',

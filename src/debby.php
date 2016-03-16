@@ -153,6 +153,11 @@ public function notify(array $results) {
 		return;
 	}
 	
+	if (!empty($this->options['notify_github'])) {
+		$github = new notify\github($this->options['notify_github']);
+		$github->notify($results);
+	}
+	
 	list($subject, $body) = (empty($results)) ? self::get_fine_email() : self::get_update_email($results);
 	
 	$message = new \Swift_Message();

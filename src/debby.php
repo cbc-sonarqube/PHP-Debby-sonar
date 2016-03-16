@@ -117,7 +117,7 @@ public function check() {
 		$update_packages[$package_name] = array(
 			'required'  => $required_packages[$package_name],
 			'installed' => $installed_version,
-			'possible'  => $possible_version[1],
+			'latest'    => $possible_version[1],
 		);
 	}
 	
@@ -129,7 +129,7 @@ public function check() {
  * 
  * @note requires options with `notify_address` and `smtp_login` keys
  * 
- * @param  array  $results
+ * @param  array $results output from ->check()
  * @return void
  */
 public function notify(array $results) {
@@ -137,9 +137,7 @@ public function notify(array $results) {
 		throw new exception('can not notify without email address of the recipient');
 	}
 	
-	$subject = (empty($results)) ? 'All dependencies running fine.' : 'Dependency updates needed!';
-	$body    = var_export($results, true);
-	$body   .= PHP_EOL.PHP_EOL.'Debby';
+	list($subject, $body) = (empty($results)) ? self::get_fine_email() : self::get_update_email($results);
 	
 	$message = new \Swift_Message();
 	$message->setFrom($this->options['notify_address']);
@@ -154,6 +152,72 @@ public function notify(array $results) {
 	
 	$mailer = new \Swift_Mailer($transport);
 	$mailer->send($message);
+}
+
+/**
+ * get the email subject and body when everything is up-to-date
+ * 
+ * @return array {
+ *         @var string $subject
+ *         @var string $body
+ * }
+ */
+private static function get_fine_email() {
+	return array(
+		'All dependencies running fine',
+		file_get_contents(__DIR__.'/templates/email_fine.txt'),
+	);
+}
+
+/**
+ * get the email subject and body when dependencies have updates
+ * 
+ * @param  array $results output from ->check()
+ * 
+ * @return array {
+ *         @var string $subject
+ *         @var string $body
+ * }
+ */
+private static function get_update_email($results) {
+	$template_package_line = file_get_contents(__DIR__.'/templates/email_package.txt');
+	$template_whole_body   = file_get_contents(__DIR__.'/templates/email_updates.txt');
+	
+	$package_lines = '';
+	foreach ($results as $package_name => $versions) {
+		$package_lines .= self::fill_package_line_template($template_package_line, $package_name, $versions);
+	}
+	
+	$subject = 'Dependency updates needed!';
+	$body    = str_replace('{{packages}}', $package_lines, $template_whole_body);
+	
+	return array(
+		$subject,
+		$body,
+	);
+}
+
+/**
+ * fill a template with package name and version constraints
+ * 
+ * @param  string $template
+ * @param  string $package_name
+ * @param  array  $versions {
+ *                @var string $required
+ *                @var string $installed
+ *                @var string $latest
+ * }
+ * 
+ * @return string
+ */
+private static function fill_package_line_template($template, $package_name, $versions) {
+	$package_line = str_replace('{{name}}', $package_name, $template);
+	
+	foreach ($versions as $version_key => $version_value) {
+		$package_line = str_replace('{{'.$version_key.'}}', $version_value, $package_line);
+	}
+	
+	return $package_line;
 }
 
 }

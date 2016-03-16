@@ -103,7 +103,7 @@ public function check() {
 		}
 		
 		// find out the newest release
-		$package_info = shell_exec($composer_executable.' show -a '.escapeshellarg($package_name));
+		$package_info = shell_exec('cd '.$this->options['root_dir'].' && '.$composer_executable.' show -a '.escapeshellarg($package_name));
 		preg_match($version_regex, $package_info, $possible_version);
 		if (empty($possible_version)) {
 			$e = new exception('can not find out newest release for '.$package_name);

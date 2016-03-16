@@ -19,7 +19,7 @@ private $options;
  *        @var array  $smtp_login     required when using ->notify()
  * }
  */
-public function __construct(array $options=array()) {
+public function __construct(array $options=[]) {
 	self::arrange_environment();
 	
 	$this->options = $options;
@@ -89,7 +89,7 @@ public function check() {
 	
 	$required_packages  = $composer_json['require'];
 	$installed_packages = $composer_lock['packages'];
-	$update_packages    = array();
+	$update_packages    = [];
 	
 	foreach ($installed_packages as $installed_package) {
 		$package_name      = $installed_package['name'];
@@ -127,11 +127,11 @@ public function check() {
 			$possible_version[1] = substr($possible_version[1], 0, 7);
 		}
 		
-		$update_packages[$package_name] = array(
+		$update_packages[$package_name] = [
 			'required'  => $required_packages[$package_name],
 			'installed' => $installed_version,
 			'latest'    => $possible_version[1],
-		);
+		];
 	}
 	
 	return $update_packages;
@@ -179,10 +179,7 @@ public function notify(array $results) {
  * }
  */
 private static function get_fine_email() {
-	return array(
-		'All dependencies running fine',
-		file_get_contents(__DIR__.'/templates/email_fine.txt'),
-	);
+	return ['All dependencies running fine', template::parse('email_fine')];
 }
 
 /**
@@ -196,44 +193,16 @@ private static function get_fine_email() {
  * }
  */
 private static function get_update_email($results) {
-	$template_package_line = file_get_contents(__DIR__.'/templates/email_package.txt');
-	$template_whole_body   = file_get_contents(__DIR__.'/templates/email_updates.txt');
-	
 	$package_lines = '';
 	foreach ($results as $package_name => $versions) {
-		$package_lines .= self::fill_package_line_template($template_package_line, $package_name, $versions);
+		$template_data = ['name' => $package_name] + $versions;
+		$package_lines .= template::parse('email_package', $template_data);
 	}
 	
 	$subject = 'Dependency updates needed!';
-	$body    = str_replace('{{packages}}', $package_lines, $template_whole_body);
+	$body    = template::parse('email_updates', ['packages' => $package_lines]);
 	
-	return array(
-		$subject,
-		$body,
-	);
-}
-
-/**
- * fill a template with package name and version constraints
- * 
- * @param  string $template
- * @param  string $package_name
- * @param  array  $versions {
- *                @var string $required
- *                @var string $installed
- *                @var string $latest
- * }
- * 
- * @return string
- */
-private static function fill_package_line_template($template, $package_name, $versions) {
-	$package_line = str_replace('{{name}}', $package_name, $template);
-	
-	foreach ($versions as $version_key => $version_value) {
-		$package_line = str_replace('{{'.$version_key.'}}', $version_value, $package_line);
-	}
-	
-	return $package_line;
+	return [$subject, $body];
 }
 
 }

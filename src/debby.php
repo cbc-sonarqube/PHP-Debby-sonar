@@ -10,13 +10,12 @@ private $options;
  * make changes to default behavior
  *
  * @param array $options {
- *        @var bool   $notify_all_ok  notify also if no packages need an update
- *                                    optional, defaults to true
- *        @var string $notify_address email address where notification will be sent to
- *                                    required when using ->notify()
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
- *        @var array  $smtp_login     required when using ->notify()
+ *        @var bool   $notify_all_ok  notify also if no packages need an update
+ *                                    optional, defaults to true
+ *        @var string $notify_github  create issues on github for package updates
+ *        @var array  $notify_email   email package updates, this sends all in one
  * }
  */
 public function __construct(array $options=[]) {
@@ -138,17 +137,16 @@ public function check() {
 }
 
 /**
- * send an email with the results from ->check()
+ * send the results to defined destinations
  * 
- * @note requires options with `notify_address` and `smtp_login` keys
+ * currently accepted via generic options:
+ * - github: creates issues per result
+ * - email: sends an email with all results
  * 
  * @param  array $results output from ->check()
  * @return void
  */
 public function notify(array $results) {
-	if (empty($this->options['notify_address'])) {
-		throw new exception('can not notify without email address of the recipient');
-	}
 	if (empty($results) && $this->options['notify_all_ok'] === false) {
 		return;
 	}
@@ -158,56 +156,10 @@ public function notify(array $results) {
 		$github->notify($results);
 	}
 	
-	list($subject, $body) = (empty($results)) ? self::get_fine_email() : self::get_update_email($results);
-	
-	$message = new \Swift_Message();
-	$message->setFrom($this->options['notify_address']);
-	$message->setTo($this->options['notify_address']);
-	$message->setSubject($subject);
-	$message->setBody($body);
-	
-	$smtp_login = $this->options['smtp_login'];
-	$transport = new \Swift_SmtpTransport($smtp_login['host'], $smtp_login['port'], $smtp_login['ssl']);
-	$transport->setUsername($smtp_login['user']);
-	$transport->setPassword($smtp_login['pass']);
-	
-	$mailer = new \Swift_Mailer($transport);
-	$mailer->send($message);
-}
-
-/**
- * get the email subject and body when everything is up-to-date
- * 
- * @return array {
- *         @var string $subject
- *         @var string $body
- * }
- */
-private static function get_fine_email() {
-	return ['All dependencies running fine', template::parse('email_fine')];
-}
-
-/**
- * get the email subject and body when dependencies have updates
- * 
- * @param  array $results output from ->check()
- * 
- * @return array {
- *         @var string $subject
- *         @var string $body
- * }
- */
-private static function get_update_email($results) {
-	$package_lines = '';
-	foreach ($results as $package_name => $versions) {
-		$template_data = ['name' => $package_name] + $versions;
-		$package_lines .= template::parse('email_package', $template_data);
+	if (!empty($this->options['notify_email'])) {
+		$email = new notify\email($this->options['notify_email']);
+		$email->notify($results);
 	}
-	
-	$subject = 'Dependency updates needed!';
-	$body    = template::parse('email_updates', ['packages' => $package_lines]);
-	
-	return [$subject, $body];
 }
 
 }

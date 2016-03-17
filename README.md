@@ -45,9 +45,13 @@ require_once(__DIR__.'/vendor/autoload.php');
 use alsvanzelf\debby;
 
 $options = [
-	'notify_address' => 'devops@example.com',
-	'root_dir'       => '/path/to/project/',
-	'smtp_login'     => [
+	'root_dir'      => '/path/to/project/',
+	'notify_github' => [
+		'repository' => 'example/project',
+		// ...
+	],
+	'notify_email'  => [
+		'recipient' => 'devops@example.com',
 		// ...
 	],
 ];

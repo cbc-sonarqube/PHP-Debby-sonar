@@ -51,7 +51,7 @@ public function notify(array $results) {
 }
 
 /**
- * notify github for a single package, creating a ticket
+ * notify github for a single package, creating an issue
  * 
  * @param  string $package_name
  * @param  array  $versions     {

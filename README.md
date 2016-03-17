@@ -31,7 +31,7 @@ If you want to adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
-Mainly, you can tell Debby where to send the notification (email or GitHub ticket).
+Mainly, you can tell Debby where to send the notification (email or GitHub issue).
 
 See [example/options.json](/README.md#Options) for all possible options.
 
@@ -68,18 +68,17 @@ See [example/custom.php](/example/custom.php) for a complete example.
 
 Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
-`notify_all_ok` | `bool` | `true` | Notify also if no packages need an update.
-`notify_address` | `string` | `''` | Email address where notification will be sent to. **Required** when using `->notify()`.
-`notify_github` | `array` | `null` | Containing keys for `token` ([personal access token](https://github.com/settings/tokens)) and `repository` (i.e. `lode/debby`).
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`smtp_login` | `array` | `null` | **Required** when using `->notify()`. Containing keys for `host`, `port`, `ssl`, `user`, `pass`.
+`notify_all_ok` | `bool` | `true` | Notify also if no packages need an update.
+`notify_github` | `array` | `null` | Containing keys for `repository` (i.e. `lode/debby`) and optionally a `token` ([personal access token](https://github.com/settings/tokens)).
+`notify_email` | `array` | `null` | **Required** when using `->notify()`. Containing keys for `recipient`, `host`, `port`, `security`, `user`, `pass`.
 
 
 ## FAQ
 
-#### Why does Debby send me emails when there is nothing to be updated?
+#### Why does Debby notify when there is nothing to be updated?
 
-This is an out-of-the-box option. It helps you know Debby actually works when you just installed it and your project is all up-to-date. You can disable these emails with the [`notify_all_ok`](/README.md#Options) option.
+This is an out-of-the-box option. It helps you know Debby actually works when you just installed it and your project is all up-to-date. You can disable these notifications with the [`notify_all_ok`](/README.md#Options) option.
 
 #### Why does Debby tell me to update above the composer constraint?
 

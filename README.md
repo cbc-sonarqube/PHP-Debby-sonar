@@ -16,6 +16,15 @@ composer require alsvanzelf/debby
 
 There are three ways to talk to Debby.
 
+#### GitHub out of the box
+
+Set up a cron to run debby periodically.
+You just provide public repository where to create the issues in.
+
+`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project`
+
+-This will create issues on that repo, 8 o'clock, every Monday morning.
+
 #### Email out of the box
 
 Set up a cron to run debby periodically.

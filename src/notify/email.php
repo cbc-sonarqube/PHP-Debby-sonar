@@ -22,6 +22,10 @@ private $recipient;
  * }
  */
 public function __construct(array $options) {
+	if (class_exists('\Swift_Mailer') === false) {
+		throw new debby\exception('can not notify via email without swiftmailer');
+	}
+	
 	$transport = new \Swift_SmtpTransport($options['host'], $options['port'], $options['security']);
 	$transport->setUsername($options['user']);
 	$transport->setPassword($options['pass']);

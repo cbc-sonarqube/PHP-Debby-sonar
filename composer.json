@@ -14,8 +14,7 @@
 	],
 	"require": {
 		"php": ">=5.5",
-		"swiftmailer/swiftmailer": "^5.4",
-		"knplabs/github-api": "^1.6"
+		"swiftmailer/swiftmailer": "^5.4"
 	},
 	"autoload": {
 		"psr-4": {

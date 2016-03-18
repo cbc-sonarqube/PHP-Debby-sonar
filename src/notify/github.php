@@ -23,10 +23,28 @@ public function __construct(array $options) {
 	}
 	
 	$this->repository = $options['repository'];
-	$this->client     = new \Github\Client();
+	$this->client     = curl_init();
 	
-	$auth_method = \Github\Client::AUTH_HTTP_TOKEN;
-	$this->client->authenticate($options['token'], $password=null, $auth_method);
+	$debby_version = shell_exec('git describe --abbrev=0 --tags');
+	$curl_options = [
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_SSL_VERIFYPEER => true,
+		CURLOPT_SSL_VERIFYHOST => 2,
+		CURLOPT_HTTPHEADER     => [
+			'Accept: application/vnd.github.v3+json',
+			'Authorization: token '.$options['token'],
+			'User-Agent: Debby/'.$debby_version.' (https://github.com/lode/debby)',
+		],
+	];
+	
+	curl_setopt_array($this->client, $curl_options);
+}
+
+/**
+ * close the curl handle
+ */
+public function __destruct() {
+	curl_close($this->client);
 }
 
 /**
@@ -72,13 +90,24 @@ private function notify_single_package($package_name, array $versions) {
  * @return void
  */
 private function create_issue($title, $description) {
-	$url       = '/repos/'.$this->repository.'/issues';
+	$url       = 'https://api.github.com/repos/'.$this->repository.'/issues';
 	$arguments = json_encode([
 		'title' => $title,
 		'body'  => $description,
 	]);
 	
-	$this->client->getHttpClient()->post($url, $arguments);
+	$curl_options = [
+		CURLOPT_URL        => $url,
+		CURLOPT_POST       => true,
+		CURLOPT_POSTFIELDS => $arguments,
+	];
+	curl_setopt_array($this->client, $curl_options);
+	
+	curl_exec($this->client);
+	
+	if (curl_errno($this->client)) {
+		throw new debby\exception('github curl error "'.curl_error($this->client).'"');
+	}
 }
 
 }

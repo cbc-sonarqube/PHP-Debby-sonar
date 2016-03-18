@@ -24,6 +24,7 @@ You just provide the repository and your personal access token.
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
 
 This will create issues on that repo for packages that need updates.
+Nothing else needed :sparkles: Just sit back and relax and Debby will tell you when you need to get working. :sunglasses:
 
 #### All options
 
@@ -89,3 +90,6 @@ Pull Requests or issues are welcome!
 ## Licence
 
 [MIT](/LICENSE)
+
+
+:girl:

@@ -16,22 +16,22 @@ composer require alsvanzelf/debby
 
 There are three ways to talk to Debby.
 
-#### Out of the box
+#### Out of the box: GitHub issues
 
 Set up a cron to run debby periodically.
-You just provide an email address where to send results to.
+You just provide the repository and your personal access token.
 
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php devops@example.com`
+`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
 
-This will send you a report 8 o'clock, every Monday morning.
+This will create issues on that repo for packages that need updates.
 
 #### All options
 
-If you want to adjust the default options, provide the path of a options file.
+If you want to email the results, or adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
-See [example/options.json](/example/options.json) for all possible options.
+See [Options](/README.md#Options) for all possible options.
 
 #### Custom
 
@@ -43,9 +43,13 @@ require_once(__DIR__.'/vendor/autoload.php');
 use alsvanzelf\debby;
 
 $options = [
-	'notify_address' => 'devops@example.com',
-	'root_dir'       => '/path/to/project/',
-	'smtp_login'     => [
+	'root_dir'      => '/path/to/project/',
+	'notify_github' => [
+		'repository' => 'example/project',
+		// ...
+	],
+	'notify_email'  => [
+		'recipient' => 'devops@example.com',
 		// ...
 	],
 ];
@@ -62,17 +66,14 @@ See [example/custom.php](/example/custom.php) for a complete example.
 
 Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
-`notify_all_ok` | `bool` | `true` | Notify also if no packages need an update.
-`notify_address` | `string` | `''` | Email address where notification will be sent to. **Required** when using `->notify()`.
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`smtp_login` | `array` | `null` | **Required** when using `->notify()`.
+`notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for: <ul><li>`repository`: i.e. `lode/debby`</li><li>`token`: a personal access token, [generate one in your settings](https://github.com/settings/tokens)</li></ul>
+`notify_email` | `array` | `null` | Supply to send an email with the results. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
+
+See [example/options.json](/example/options.json) for a complete example.
 
 
 ## FAQ
-
-#### Why does Debby send me emails when there is nothing to be updated?
-
-This is an out-of-the-box option. It helps you know Debby actually works when you just installed it and your project is all up-to-date. You can disable these emails with the [`notify_all_ok`](/README.md#Options) option.
 
 #### Why does Debby tell me to update above the composer constraint?
 

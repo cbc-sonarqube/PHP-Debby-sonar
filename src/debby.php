@@ -10,25 +10,19 @@ private $options;
  * make changes to default behavior
  *
  * @param array $options {
- *        @var bool   $notify_all_ok  notify also if no packages need an update
- *                                    optional, defaults to true
- *        @var string $notify_address email address where notification will be sent to
- *                                    required when using ->notify()
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
- *        @var array  $smtp_login     required when using ->notify()
+ *        @var string $notify_github  create issues on github for package updates
+ *        @var array  $notify_email   email package updates, this sends all in one
  * }
  */
-public function __construct(array $options=array()) {
+public function __construct(array $options=[]) {
 	self::arrange_environment();
 	
 	$this->options = $options;
 	
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
-	}
-	if (!isset($this->options['notify_all_ok'])) {
-		$this->options['notify_all_ok'] = true;
 	}
 }
 
@@ -89,7 +83,7 @@ public function check() {
 	
 	$required_packages  = $composer_json['require'];
 	$installed_packages = $composer_lock['packages'];
-	$update_packages    = array();
+	$update_packages    = [];
 	
 	foreach ($installed_packages as $installed_package) {
 		$package_name      = $installed_package['name'];
@@ -127,113 +121,40 @@ public function check() {
 			$possible_version[1] = substr($possible_version[1], 0, 7);
 		}
 		
-		$update_packages[$package_name] = array(
+		$update_packages[$package_name] = [
 			'required'  => $required_packages[$package_name],
 			'installed' => $installed_version,
 			'latest'    => $possible_version[1],
-		);
+		];
 	}
 	
 	return $update_packages;
 }
 
 /**
- * send an email with the results from ->check()
+ * send the results to defined destinations
  * 
- * @note requires options with `notify_address` and `smtp_login` keys
+ * currently accepted via generic options:
+ * - github: creates issues per result
+ * - email: sends an email with all results
  * 
  * @param  array $results output from ->check()
  * @return void
  */
 public function notify(array $results) {
-	if (empty($this->options['notify_address'])) {
-		throw new exception('can not notify without email address of the recipient');
-	}
-	if (empty($results) && $this->options['notify_all_ok'] === false) {
+	if (empty($results)) {
 		return;
 	}
 	
-	list($subject, $body) = (empty($results)) ? self::get_fine_email() : self::get_update_email($results);
-	
-	$message = new \Swift_Message();
-	$message->setFrom($this->options['notify_address']);
-	$message->setTo($this->options['notify_address']);
-	$message->setSubject($subject);
-	$message->setBody($body);
-	
-	$smtp_login = $this->options['smtp_login'];
-	$transport = new \Swift_SmtpTransport($smtp_login['host'], $smtp_login['port'], $smtp_login['ssl']);
-	$transport->setUsername($smtp_login['user']);
-	$transport->setPassword($smtp_login['pass']);
-	
-	$mailer = new \Swift_Mailer($transport);
-	$mailer->send($message);
-}
-
-/**
- * get the email subject and body when everything is up-to-date
- * 
- * @return array {
- *         @var string $subject
- *         @var string $body
- * }
- */
-private static function get_fine_email() {
-	return array(
-		'All dependencies running fine',
-		file_get_contents(__DIR__.'/templates/email_fine.txt'),
-	);
-}
-
-/**
- * get the email subject and body when dependencies have updates
- * 
- * @param  array $results output from ->check()
- * 
- * @return array {
- *         @var string $subject
- *         @var string $body
- * }
- */
-private static function get_update_email($results) {
-	$template_package_line = file_get_contents(__DIR__.'/templates/email_package.txt');
-	$template_whole_body   = file_get_contents(__DIR__.'/templates/email_updates.txt');
-	
-	$package_lines = '';
-	foreach ($results as $package_name => $versions) {
-		$package_lines .= self::fill_package_line_template($template_package_line, $package_name, $versions);
+	if (!empty($this->options['notify_github'])) {
+		$github = new notify\github($this->options['notify_github']);
+		$github->notify($results);
 	}
 	
-	$subject = 'Dependency updates needed!';
-	$body    = str_replace('{{packages}}', $package_lines, $template_whole_body);
-	
-	return array(
-		$subject,
-		$body,
-	);
-}
-
-/**
- * fill a template with package name and version constraints
- * 
- * @param  string $template
- * @param  string $package_name
- * @param  array  $versions {
- *                @var string $required
- *                @var string $installed
- *                @var string $latest
- * }
- * 
- * @return string
- */
-private static function fill_package_line_template($template, $package_name, $versions) {
-	$package_line = str_replace('{{name}}', $package_name, $template);
-	
-	foreach ($versions as $version_key => $version_value) {
-		$package_line = str_replace('{{'.$version_key.'}}', $version_value, $package_line);
+	if (!empty($this->options['notify_email'])) {
+		$email = new notify\email($this->options['notify_email']);
+		$email->notify($results);
 	}
-	
-	return $package_line;
 }
 
 }

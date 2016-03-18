@@ -1,5 +1,0 @@
-I just checked for composer updates for you.
-No worries, all dependencies are up-to-date.
-
-
-Debby

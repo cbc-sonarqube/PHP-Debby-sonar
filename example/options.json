@@ -1,11 +1,14 @@
 {
-	"notify_all_ok": true,
-	"notify_address": "devops@example.com",
 	"root_dir": "/path/to/project/",
-	"smtp_login": {
+	"notify_github": {
+		"repository": "example/project",
+		"token": "user token"
+	},
+	"notify_email": {
+		"recipient": "devops@example.com",
 		"host": "smtp.example.com",
 		"port": 587,
-		"ssl": "ssl",
+		"security": "ssl",
 		"user": "devops@example.com",
 		"pass": "password"
 	}

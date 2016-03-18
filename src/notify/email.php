@@ -38,14 +38,6 @@ public function __construct(array $options) {
  * @return void
  */
 public function notify(array $results) {
-	if (empty($results)) {
-		$subject = 'All dependencies running fine';
-		$body    = debby\template::parse('email_fine');
-		
-		$this->send_email($subject, $body);
-		return;
-	}
-	
 	$package_lines = '';
 	foreach ($results as $package_name => $versions) {
 		$template_data = ['name' => $package_name] + $versions;

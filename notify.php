@@ -46,4 +46,6 @@ $debby = new debby\debby($options);
 $results = $debby->check();
 $debby->notify($results);
 
+echo (empty($results)) ? 'No updates found'.PHP_EOL : count($results).' updates found'.PHP_EOL;
+
 exit(0);

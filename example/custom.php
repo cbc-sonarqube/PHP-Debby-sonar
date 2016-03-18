@@ -6,7 +6,6 @@ use alsvanzelf\debby;
 
 $options = [
 	'root_dir'       => '/path/to/project/',
-	'notify_all_ok'  => true,
 	'notify_github'  => [
 		'repository' => 'example/project',
 		'token'      => 'user token',

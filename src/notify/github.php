@@ -37,14 +37,6 @@ public function __construct(array $options) {
  * @return void
  */
 public function notify(array $results) {
-	if (empty($results)) {
-		$issue_title       = 'All dependencies running fine';
-		$issue_description = debby\template::parse('ticket_fine');
-		
-		$this->create_issue($issue_title, $issue_description);
-		return;
-	}
-	
 	foreach ($results as $package_name => $versions) {
 		$this->notify_single_package($package_name, $versions);
 	}

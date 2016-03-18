@@ -12,8 +12,6 @@ private $options;
  * @param array $options {
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
- *        @var bool   $notify_all_ok  notify also if no packages need an update
- *                                    optional, defaults to true
  *        @var string $notify_github  create issues on github for package updates
  *        @var array  $notify_email   email package updates, this sends all in one
  * }
@@ -25,9 +23,6 @@ public function __construct(array $options=[]) {
 	
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
-	}
-	if (!isset($this->options['notify_all_ok'])) {
-		$this->options['notify_all_ok'] = true;
 	}
 }
 
@@ -147,7 +142,7 @@ public function check() {
  * @return void
  */
 public function notify(array $results) {
-	if (empty($results) && $this->options['notify_all_ok'] === false) {
+	if (empty($results)) {
 		return;
 	}
 	

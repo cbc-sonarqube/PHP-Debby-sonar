@@ -16,33 +16,22 @@ composer require alsvanzelf/debby
 
 There are three ways to talk to Debby.
 
-#### GitHub out of the box
+#### Out of the box: GitHub issues
 
 Set up a cron to run debby periodically.
-You just provide public repository where to create the issues in.
+You just provide the repository and your personal access token.
 
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project`
+`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
 
--This will create issues on that repo, 8 o'clock, every Monday morning.
-
-#### Email out of the box
-
-Set up a cron to run debby periodically.
-You just provide an email address where to send results to.
-
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php devops@example.com`
-
-This will send you a report 8 o'clock, every Monday morning.
+This will create issues on that repo for packages that need updates.
 
 #### All options
 
-If you want to adjust the default options, provide the path of a options file.
+If you want to email the results, or adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
-Mainly, you can tell Debby where to send the notification (email or GitHub issue).
-
-See [example/options.json](/README.md#Options) for all possible options.
+See [Options](/README.md#Options) for all possible options.
 
 #### Custom
 
@@ -78,8 +67,10 @@ See [example/custom.php](/example/custom.php) for a complete example.
 Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`notify_github` | `array` | `null` | Containing keys for `repository` (i.e. `lode/debby`) and optionally a `token` ([personal access token](https://github.com/settings/tokens)).
-`notify_email` | `array` | `null` | **Required** when using `->notify()`. Containing keys for `recipient`, `host`, `port`, `security`, `user`, `pass`.
+`notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for `repository` (i.e. `lode/debby`) and a `token` ([personal access token](https://github.com/settings/tokens)).
+`notify_email` | `array` | `null` | Supply to send an email with the results. It should contain keys for `recipient`, `host`, `port`, `security`, `user`, `pass`.
+
+See [example/options.json](/example/options.json) for a complete example.
 
 
 ## FAQ

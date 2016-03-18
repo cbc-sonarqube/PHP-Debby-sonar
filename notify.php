@@ -38,7 +38,7 @@ elseif (strpos($argv[1], '/')) {
 	];
 }
 else {
-	throw new debby\exception('unknown notify request, supply github repository or options.json');
+	throw new debby\exception('unknown notify request, supply github repository with token or options.json');
 }
 
 $debby = new debby\debby($options);

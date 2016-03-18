@@ -67,8 +67,8 @@ See [example/custom.php](/example/custom.php) for a complete example.
 Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for `repository` (i.e. `lode/debby`) and a `token` ([personal access token](https://github.com/settings/tokens)).
-`notify_email` | `array` | `null` | Supply to send an email with the results. It should contain keys for `recipient`, `host`, `port`, `security`, `user`, `pass`.
+`notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for: <ul><li>`repository`: i.e. `lode/debby`</li><li>`token`: a personal access token, [generate one in your settings](https://github.com/settings/tokens)</li></ul>
+`notify_email` | `array` | `null` | Supply to send an email with the results. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
 
 See [example/options.json](/example/options.json) for a complete example.
 

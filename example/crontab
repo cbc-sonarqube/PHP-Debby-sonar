@@ -1,2 +1,2 @@
-0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php devops@example.com
-0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json
+0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token
+0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json

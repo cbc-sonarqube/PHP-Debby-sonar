@@ -21,7 +21,7 @@ There are three ways to talk to Debby.
 Set up a cron to run debby periodically.
 You just provide the repository and your personal access token.
 
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
+`0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
 
 This will create issues on that repo for packages that need updates.
 Nothing else needed :sparkles: Just sit back and relax and Debby will tell you when you need to get working. :sunglasses:
@@ -30,7 +30,7 @@ Nothing else needed :sparkles: Just sit back and relax and Debby will tell you w
 
 If you want to email the results, or adjust the default options, provide the path of a options file.
 
-`0 8 * * Mon export php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
+`0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
 See [Options](/README.md#Options) for all possible options.
 

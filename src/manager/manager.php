@@ -8,7 +8,7 @@ interface manager {
  * setup the environment
  * 
  * @param array $options {
- *              @var $root_dir where the composer.json and composer.lock are placed
+ *              @var $root_dir
  * }
  */
 public function __construct(array $options=[]);

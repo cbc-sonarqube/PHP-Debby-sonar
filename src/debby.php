@@ -53,7 +53,7 @@ protected static function arrange_environment() {
 }
 
 /**
- * checks composer packages for new releases since the installed version
+ * checks packages for new releases since the installed version
  * 
  * @return array<package>
  */

@@ -71,12 +71,13 @@ public function send(array $packages) {
 private function send_single_package(package\package $package) {
 	$template_data = [
 		'name'      => $package->get_name(),
+		'manager'   => $package->get_manager_name(),
 		'required'  => $package->get_required_version(),
 		'installed' => $package->get_installed_version(),
 		'latest'    => $package->get_latest_version(),
 	];
 	
-	$issue_title = 'Update composer package '.$package->get_name();
+	$issue_title = 'Update '.$package->get_manager_name().' package '.$package->get_name();
 	$issue_description = template::parse('ticket_package', $template_data);
 	
 	$this->create_issue($issue_title, $issue_description);

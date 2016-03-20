@@ -1,6 +1,6 @@
-Composer package **{{name}}** has an update available.
+{{manager}} package **{{name}}** has an update available.
 
-Requirement in `composer.json`: `{{required}}`
+Requirement: `{{required}}`
 Installed version: `{{installed}}`
 Latest version: `{{latest}}` :point_left:
 

@@ -19,7 +19,8 @@ private $repository;
  */
 public function __construct(array $options) {
 	if (empty($options['token']) || empty($options['repository'])) {
-		throw new debby\exception('github notifications require a token and a repository option');
+		$e = new debby\exception('github notifications require a token and a repository option');
+		$e->stop();
 	}
 	
 	$this->repository = $options['repository'];
@@ -106,7 +107,8 @@ private function create_issue($title, $description) {
 	curl_exec($this->client);
 	
 	if (curl_errno($this->client)) {
-		throw new debby\exception('github curl error "'.curl_error($this->client).'"');
+		$e = new debby\exception('github curl error "'.curl_error($this->client).'"');
+		$e->stop();
 	}
 }
 

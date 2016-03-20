@@ -11,7 +11,8 @@ if (empty($argv[1])) {
 
 if (strpos($argv[1], '.json')) {
 	if (file_exists($argv[1]) === false) {
-		throw new debby\exception('options file not found at '.realpath($argv[1]));
+		$e = new debby\exception('options file not found at '.realpath($argv[1]));
+		$e->stop();
 	}
 	
 	$options = json_decode(file_get_contents($argv[1]), true);
@@ -38,7 +39,8 @@ elseif (strpos($argv[1], '/')) {
 	];
 }
 else {
-	throw new debby\exception('unknown notify request, supply github repository with token or options.json');
+	$e = new debby\exception('unknown notify request, supply github repository with token or options.json');
+	$e->stop();
 }
 
 $debby = new debby\debby($options);

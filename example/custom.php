@@ -21,5 +21,5 @@ $options = [
 ];
 $debby = new debby\debby($options);
 
-$results = $debby->check();
-$debby->notify($results);
+$packages = $debby->check();
+$debby->notify($packages);

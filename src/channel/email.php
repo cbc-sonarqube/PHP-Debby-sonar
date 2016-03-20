@@ -1,10 +1,11 @@
 <?php
 
-namespace alsvanzelf\debby\notify;
+namespace alsvanzelf\debby\channel;
 
-use alsvanzelf\debby;
+use alsvanzelf\debby\exception;
+use alsvanzelf\debby\template;
 
-class email {
+class email implements channel {
 
 private $client;
 private $recipient;
@@ -21,9 +22,9 @@ private $recipient;
  *              @var $pass
  * }
  */
-public function __construct(array $options) {
+public function __construct(array $options=[]) {
 	if (class_exists('\Swift_Mailer') === false) {
-		$e = new debby\exception('can not notify via email without swiftmailer');
+		$e = new exception('can not notify via email without swiftmailer');
 		$e->stop();
 	}
 	
@@ -36,21 +37,20 @@ public function __construct(array $options) {
 }
 
 /**
- * notify an email address with debby results
+ * send an email with all updatable packages
  * 
- * @param  array $results output from debby->check()
- * 
+ * @param  array<package> $packages as returned by debby->check()
  * @return void
  */
-public function notify(array $results) {
+public function send(array $packages) {
 	$package_lines = '';
-	foreach ($results as $package_name => $versions) {
+	foreach ($packages as $package_name => $versions) {
 		$template_data = ['name' => $package_name] + $versions;
-		$package_lines .= debby\template::parse('email_package', $template_data);
+		$package_lines .= template::parse('email_package', $template_data);
 	}
 	
 	$subject = 'Dependency updates needed!';
-	$body    = debby\template::parse('email_updates', ['packages' => $package_lines]);
+	$body    = template::parse('email_updates', ['packages' => $package_lines]);
 	
 	$this->send_email($subject, $body);
 }
@@ -60,7 +60,6 @@ public function notify(array $results) {
  * 
  * @param  string $subject
  * @param  string $body
- * 
  * @return void
  */
 private function send_email($subject, $body) {

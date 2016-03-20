@@ -1,10 +1,12 @@
 <?php
 
-namespace alsvanzelf\debby\notify;
+namespace alsvanzelf\debby\channel;
 
-use alsvanzelf\debby;
+use alsvanzelf\debby\exception;
+use alsvanzelf\debby\package;
+use alsvanzelf\debby\template;
 
-class github {
+class github implements channel {
 
 private $client;
 private $repository;
@@ -17,9 +19,9 @@ private $repository;
  *              @var $token      personal access token with (private) repo access
  * }
  */
-public function __construct(array $options) {
+public function __construct(array $options=[]) {
 	if (empty($options['token']) || empty($options['repository'])) {
-		$e = new debby\exception('github notifications require a token and a repository option');
+		$e = new exception('github notifications require a token and a repository option');
 		$e->stop();
 	}
 	
@@ -49,35 +51,33 @@ public function __destruct() {
 }
 
 /**
- * notify github with debby results
+ * create github issues for each updatable package
  * 
- * @param  array $results output from debby->check()
- * 
+ * @param  array<package> $packages as returned by ->check()
  * @return void
  */
-public function notify(array $results) {
-	foreach ($results as $package_name => $versions) {
-		$this->notify_single_package($package_name, $versions);
+public function send(array $packages) {
+	foreach ($packages as $package) {
+		$this->send_single_package($package);
 	}
 }
 
 /**
- * notify github for a single package, creating an issue
+ * create github issue for a single package
  * 
- * @param  string $package_name
- * @param  array  $versions     {
- *         @var $required
- *         @var $installed
- *         @var $possible
- * }
- * 
+ * @param  package $package
  * @return void
  */
-private function notify_single_package($package_name, array $versions) {
-	$template_data = ['name' => $package_name] + $versions;
+private function send_single_package(package\package $package) {
+	$template_data = [
+		'name'      => $package->get_name(),
+		'required'  => $package->get_required_version(),
+		'installed' => $package->get_installed_version(),
+		'latest'    => $package->get_latest_version(),
+	];
 	
-	$issue_title = 'Update composer package '.$package_name;
-	$issue_description = debby\template::parse('ticket_package', $template_data);
+	$issue_title = 'Update composer package '.$package->get_name();
+	$issue_description = template::parse('ticket_package', $template_data);
 	
 	$this->create_issue($issue_title, $issue_description);
 }
@@ -87,7 +87,6 @@ private function notify_single_package($package_name, array $versions) {
  * 
  * @param  string $title
  * @param  string $description
- * 
  * @return void
  */
 private function create_issue($title, $description) {
@@ -107,7 +106,7 @@ private function create_issue($title, $description) {
 	curl_exec($this->client);
 	
 	if (curl_errno($this->client)) {
-		$e = new debby\exception('github curl error "'.curl_error($this->client).'"');
+		$e = new exception('github curl error "'.curl_error($this->client).'"');
 		$e->stop();
 	}
 }

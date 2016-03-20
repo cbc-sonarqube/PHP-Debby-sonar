@@ -28,7 +28,7 @@ Nothing else needed :sparkles: Just sit back and relax and Debby will tell you w
 
 #### All options
 
-If you want to email the results, or adjust the default options, provide the path of a options file.
+If you want to email the updatable packages, or adjust the default options, provide the path of a options file.
 
 `0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
 
@@ -56,8 +56,8 @@ $options = [
 ];
 $debby = new debby\debby($options);
 
-$results = $debby->check();
-$debby->notify($results);
+$packages = $debby->check();
+$debby->notify($packages);
 ```
 
 See [example/custom.php](/example/custom.php) for a complete example.
@@ -69,7 +69,7 @@ Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
 `notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for: <ul><li>`repository`: i.e. `lode/debby`</li><li>`token`: a personal access token, [generate one in your settings](https://github.com/settings/tokens)</li></ul>
-`notify_email` | `array` | `null` | Supply to send an email with the results. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
+`notify_email` | `array` | `null` | Supply to send an email with the updatable packages. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
 
 See [example/options.json](/example/options.json) for a complete example.
 

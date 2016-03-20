@@ -1,7 +1,7 @@
 {
 	"name": "alsvanzelf/debby",
 	"type": "library",
-	"description": "dependency checker for the interwebs",
+	"description": "Debby checks your project dependencies and tells you when to update.",
 	"keywords": ["dependency", "composer"],
 	"homepage": "https://github.com/lode/debby",
 	"license": "MIT",

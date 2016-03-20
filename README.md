@@ -2,6 +2,15 @@
 
 Debby checks your project dependencies and tells you when to update.
 
+1. Install her via composer.
+2. Setup a cronjob to let her notify you regulary.
+3. Sit back and relax. Take a :coffee: or :tea: or :beer:
+
+Debby will tell you when you need to get working.
+This lets you stay on top of your dependencies and deploy security releases quickly. :sunglasses:
+
+By the way, Debby will tell when she needs an update herself. You don't need to do anything. :sparkles:
+
 
 ## Installation
 
@@ -21,10 +30,9 @@ There are three ways to talk to Debby.
 Set up a cron to run debby periodically.
 You just provide the repository and your personal access token.
 
-`0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
+`0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
 
-This will create issues on that repo for packages that need updates.
-Nothing else needed :sparkles: Just sit back and relax and Debby will tell you when you need to get working. :sunglasses:
+This will create issues on that repository for packages that need updates.
 
 #### All options
 

@@ -9,6 +9,7 @@ if (empty($argv[1])) {
 	$e->stop();
 }
 
+// read from options.json file
 if (strpos($argv[1], '.json')) {
 	if (file_exists($argv[1]) === false) {
 		$e = new debby\exception('options file not found at '.realpath($argv[1]));
@@ -25,6 +26,8 @@ if (strpos($argv[1], '.json')) {
 		$e->stop();
 	}
 }
+
+// out of the box: creating github issues
 elseif (strpos($argv[1], '/')) {
 	if (empty($argv[2])) {
 		$e = new debby\exception('missing required argument github token');
@@ -38,11 +41,14 @@ elseif (strpos($argv[1], '/')) {
 		],
 	];
 }
+
+// no other out-of-the-box uses
 else {
 	$e = new debby\exception('unknown notify request, supply github repository with token or options.json');
 	$e->stop();
 }
 
+// ignite
 $debby = new debby\debby($options);
 
 $packages = $debby->check();

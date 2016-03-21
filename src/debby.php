@@ -18,6 +18,7 @@ private static $version;
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
  *        @var string $notify_github  create issues on github for package updates
+ *        @var string $notify_slack   message package updates to a slack channel
  *        @var array  $notify_email   email package updates, this sends all in one
  * }
  */
@@ -102,6 +103,11 @@ public function notify(array $packages) {
 	if (!empty($this->options['notify_github'])) {
 		$github = new channel\github($this->options['notify_github']);
 		$github->send($packages);
+	}
+	
+	if (!empty($this->options['notify_slack'])) {
+		$slack = new channel\slack($this->options['notify_slack']);
+		$slack->send($packages);
 	}
 	
 	if (!empty($this->options['notify_email'])) {

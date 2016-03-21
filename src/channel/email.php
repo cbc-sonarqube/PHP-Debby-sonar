@@ -1,10 +1,11 @@
 <?php
 
-namespace alsvanzelf\debby\notify;
+namespace alsvanzelf\debby\channel;
 
-use alsvanzelf\debby;
+use alsvanzelf\debby\exception;
+use alsvanzelf\debby\template;
 
-class email {
+class email implements channel {
 
 private $client;
 private $recipient;
@@ -21,9 +22,10 @@ private $recipient;
  *              @var $pass
  * }
  */
-public function __construct(array $options) {
+public function __construct(array $options=[]) {
 	if (class_exists('\Swift_Mailer') === false) {
-		throw new debby\exception('can not notify via email without swiftmailer');
+		$e = new exception('can not notify via email without swiftmailer');
+		$e->stop();
 	}
 	
 	$transport = new \Swift_SmtpTransport($options['host'], $options['port'], $options['security']);
@@ -35,21 +37,27 @@ public function __construct(array $options) {
 }
 
 /**
- * notify an email address with debby results
+ * send an email with all updatable packages
  * 
- * @param  array $results output from debby->check()
- * 
+ * @param  array<package> $packages as returned by debby->check()
  * @return void
  */
-public function notify(array $results) {
+public function send(array $packages) {
 	$package_lines = '';
-	foreach ($results as $package_name => $versions) {
-		$template_data = ['name' => $package_name] + $versions;
-		$package_lines .= debby\template::parse('email_package', $template_data);
+	foreach ($packages as $package) {
+		$template_data = [
+			'name'      => $package->get_name(),
+			'manager'   => $package->get_manager_name(),
+			'required'  => $package->get_required_version(),
+			'installed' => $package->get_installed_version(),
+			'latest'    => $package->get_latest_version(),
+		];
+		
+		$package_lines .= template::parse('email_multiple_line', $template_data);
 	}
 	
 	$subject = 'Dependency updates needed!';
-	$body    = debby\template::parse('email_updates', ['packages' => $package_lines]);
+	$body    = template::parse('email_multiple', ['packages' => $package_lines]);
 	
 	$this->send_email($subject, $body);
 }
@@ -59,7 +67,6 @@ public function notify(array $results) {
  * 
  * @param  string $subject
  * @param  string $body
- * 
  * @return void
  */
 private function send_email($subject, $body) {

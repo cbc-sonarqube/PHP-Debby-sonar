@@ -1,7 +1,0 @@
-Composer package **{{name}}** has an update available.
-
-Requirement in `composer.json`: `{{required}}`
-Installed version: `{{installed}}`
-Latest version: `{{latest}}` :point_left:
-
-Debby :girl:

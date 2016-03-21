@@ -2,9 +2,14 @@
 
 namespace alsvanzelf\debby;
 
+use alsvanzelf\debby\manager;
+use alsvanzelf\debby\channel;
+
 class debby {
 
 private $options;
+
+private static $version;
 
 /**
  * make changes to default behavior
@@ -24,6 +29,21 @@ public function __construct(array $options=[]) {
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
 	}
+}
+
+/**
+ * get debby's current version
+ * useful for outgoing user-agents
+ * 
+ * @return string i.e. 'v0.7'
+ */
+public static function get_version() {
+	if (empty(self::$version)) {
+		$latest_tag    = shell_exec('git describe --abbrev=0 --tags');
+		self::$version = trim($latest_tag);
+	}
+	
+	return self::$version;
 }
 
 /**
@@ -50,110 +70,43 @@ protected static function arrange_environment() {
 }
 
 /**
- * checks composer packages for new releases since the installed version
+ * checks packages for new releases since the installed version
  * 
- * @todo check if the required version is significantly off
- *       which would mean the json needs to change to be able to update
- * 
- * @return array {
- *         @var $required
- *         @var $installed
- *         @var $possible
- * }
+ * @return array<package>
  */
 public function check() {
-	$composer_json = file_get_contents($this->options['root_dir'].'composer.json');
-	$composer_json = json_decode($composer_json, true);
-	if (empty($composer_json['require'])) {
-		$e = new exception('there are no required packages to check');
-		$e->stop();
-	}
+	$packages = [];
 	
-	$composer_lock = file_get_contents($this->options['root_dir'].'composer.lock');
-	$composer_lock = json_decode($composer_lock, true);
-	if (empty($composer_lock['packages'])) {
-		$e = new exception('lock file is missing its packages');
-		$e->stop();
-	}
+	$composer = new manager\composer($this->options);
+	$packages += $composer->find_updatable_packages();
 	
-	$composer_executable = 'composer';
-	if (file_exists($this->options['root_dir'].'composer.phar')) {
-		$composer_executable = 'php composer.phar';
-	}
-	
-	$required_packages  = $composer_json['require'];
-	$installed_packages = $composer_lock['packages'];
-	$update_packages    = [];
-	
-	foreach ($installed_packages as $installed_package) {
-		$package_name      = $installed_package['name'];
-		$installed_version = preg_replace('/v([0-9].*)/', '$1', $installed_package['version']);
-		$version_regex     = '/versions\s*:.+v?([0-9]+\.[0-9]+(\.[0-9]+)?)(,|$)/U';
-		
-		// skip dependencies of dependencies
-		if (empty($required_packages[$package_name])) {
-			continue;
-		}
-		
-		// check commit hash for dev-* versions
-		if (strpos($installed_version, 'dev-') === 0) {
-			$installed_version = $installed_package['source']['reference'];
-			$version_regex     = '/source\s*:.+ ([a-f0-9]{40})$/m';
-		}
-		
-		// find out the newest release
-		$package_info = shell_exec('cd '.$this->options['root_dir'].' && '.$composer_executable.' show -a '.escapeshellarg($package_name));
-		preg_match($version_regex, $package_info, $possible_version);
-		if (empty($possible_version)) {
-			$e = new exception('can not find out newest release for '.$package_name);
-			$e->stop();
-		}
-		
-		if ($possible_version[1] == $installed_version) {
-			continue;
-		}
-		
-		// keep sha1 hashes short
-		if (strlen($installed_version) === 40) {
-			$installed_version = substr($installed_version, 0, 7);
-		}
-		if (strlen($possible_version[1]) === 40) {
-			$possible_version[1] = substr($possible_version[1], 0, 7);
-		}
-		
-		$update_packages[$package_name] = [
-			'required'  => $required_packages[$package_name],
-			'installed' => $installed_version,
-			'latest'    => $possible_version[1],
-		];
-	}
-	
-	return $update_packages;
+	return $packages;
 }
 
 /**
- * send the results to defined destinations
+ * send the updatable packages to defined destinations
  * 
  * currently accepted via generic options:
  * - github: creates issues per result
- * - email: sends an email with all results
+ * - email: sends an email with all updatable packages
  * 
- * @param  array $results output from ->check()
+ * @param  array<package> $packages as returned by ->check()
+ * 
  * @return void
  */
-public function notify(array $results) {
-	if (empty($results)) {
+public function notify(array $packages) {
+	if (empty($packages)) {
 		return;
 	}
 	
 	if (!empty($this->options['notify_github'])) {
-		$github = new notify\github($this->options['notify_github']);
-		$github->notify($results);
+		$github = new channel\github($this->options['notify_github']);
+		$github->send($packages);
 	}
 	
 	if (!empty($this->options['notify_email'])) {
-		$email = new notify\email($this->options['notify_email']);
-		$email->notify($results);
+		$email = new channel\email($this->options['notify_email']);
+		$email->send($packages);
 	}
 }
 

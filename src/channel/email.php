@@ -53,11 +53,11 @@ public function send(array $packages) {
 			'latest'    => $package->get_latest_version(),
 		];
 		
-		$package_lines .= template::parse('email_package', $template_data);
+		$package_lines .= template::parse('email_multiple_line', $template_data);
 	}
 	
 	$subject = 'Dependency updates needed!';
-	$body    = template::parse('email_updates', ['packages' => $package_lines]);
+	$body    = template::parse('email_multiple', ['packages' => $package_lines]);
 	
 	$this->send_email($subject, $body);
 }

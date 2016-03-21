@@ -53,7 +53,7 @@ public function __destruct() {
 /**
  * create github issues for each updatable package
  * 
- * @param  array<package> $packages as returned by ->check()
+ * @param  array<package> $packages as returned by debby->check()
  * @return void
  */
 public function send(array $packages) {
@@ -78,7 +78,7 @@ private function send_single_package(package\package $package) {
 	];
 	
 	$issue_title = 'Update '.$package->get_manager_name().' package '.$package->get_name();
-	$issue_description = template::parse('ticket_package', $template_data);
+	$issue_description = template::parse('github_single', $template_data);
 	
 	$this->create_issue($issue_title, $issue_description);
 }

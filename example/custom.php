@@ -10,6 +10,10 @@ $options = [
 		'repository' => 'example/project',
 		'token'      => 'user token',
 	],
+	'notify_trello' => [
+		'list'  => 'list id',
+		'token' => 'user token',
+	],
 	'notify_slack'  => [
 		'webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
 	],

@@ -57,6 +57,10 @@ $options = [
 		'repository' => 'example/project',
 		// ...
 	],
+	'notify_trello' => [
+		'list' => '...',
+		// ...
+	],
 	'notify_slack' => [
 		'webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
 	],
@@ -80,6 +84,7 @@ Option | Type | Default | Explanation
 ------ | ---- | ------- | -----------
 `root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
 `notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for: <ul><li>`repository`: i.e. `lode/debby`</li><li>`token`: a personal access token, [generate one in your settings](https://github.com/settings/tokens)</li></ul>
+`notify_trello` | `array` | `null` | Supply to add cards to a Trello list for each package update. It should contain keys for: <ul><li>`list`: get this by adding `.json` to an existing card and look for `"idList":`</li><li>`token`: a personal token, [authenticate for Debby](https://trello.com/1/authorize?name=Debby&expiration=never&scope=read,write&response_type=token&key=9b174ff1ccf5ca94f1c181bc3d802d4b) to get one.</ul>
 `notify_slack`| `array` | `null` | Supply to send messages to a Slack channel with the updatable packages. It should contain a single `webhook` key. Get it from [Slack's App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
 `notify_email` | `array` | `null` | Supply to send an email with the updatable packages. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
 

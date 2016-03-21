@@ -9,6 +9,8 @@ class debby {
 
 private $options;
 
+private static $version;
+
 /**
  * make changes to default behavior
  *
@@ -27,6 +29,21 @@ public function __construct(array $options=[]) {
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
 	}
+}
+
+/**
+ * get debby's current version
+ * useful for outgoing user-agents
+ * 
+ * @return string i.e. 'v0.7'
+ */
+public static function get_version() {
+	if (empty(self::$version)) {
+		$latest_tag    = shell_exec('git describe --abbrev=0 --tags');
+		self::$version = trim($latest_tag);
+	}
+	
+	return self::$version;
 }
 
 /**

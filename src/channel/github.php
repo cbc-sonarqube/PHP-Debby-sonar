@@ -2,6 +2,7 @@
 
 namespace alsvanzelf\debby\channel;
 
+use alsvanzelf\debby;
 use alsvanzelf\debby\exception;
 use alsvanzelf\debby\package;
 use alsvanzelf\debby\template;
@@ -28,7 +29,6 @@ public function __construct(array $options=[]) {
 	$this->repository = $options['repository'];
 	$this->client     = curl_init();
 	
-	$debby_version = shell_exec('git describe --abbrev=0 --tags');
 	$curl_options = [
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_SSL_VERIFYPEER => true,
@@ -36,7 +36,7 @@ public function __construct(array $options=[]) {
 		CURLOPT_HTTPHEADER     => [
 			'Accept: application/vnd.github.v3+json',
 			'Authorization: token '.$options['token'],
-			'User-Agent: Debby/'.$debby_version.' (https://github.com/lode/debby)',
+			'User-Agent: Debby/'.debby\debby::get_version().' (https://github.com/lode/debby)',
 		],
 	];
 	

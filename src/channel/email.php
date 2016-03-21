@@ -44,8 +44,15 @@ public function __construct(array $options=[]) {
  */
 public function send(array $packages) {
 	$package_lines = '';
-	foreach ($packages as $package_name => $versions) {
-		$template_data = ['name' => $package_name] + $versions;
+	foreach ($packages as $package) {
+		$template_data = [
+			'name'      => $package->get_name(),
+			'manager'   => $package->get_manager_name(),
+			'required'  => $package->get_required_version(),
+			'installed' => $package->get_installed_version(),
+			'latest'    => $package->get_latest_version(),
+		];
+		
 		$package_lines .= template::parse('email_package', $template_data);
 	}
 	

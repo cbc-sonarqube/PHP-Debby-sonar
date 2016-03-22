@@ -59,7 +59,8 @@ Debby creates an issue at your GitHub repository for each updatable package.
 Getting started:
 
 1. [Generate a personal access token](https://github.com/settings/tokens) in your GitHub settings.
-2. Add an `notify_github` option:
+2. Choose the scope `public_repo` ("Access public repositories") or `repo` ("Full control of private repositories").
+3. Add an `notify_github` option:
 
   ``` json
   {

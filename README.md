@@ -2,67 +2,185 @@
 
 Debby checks your project dependencies and tells you when to update.
 
-1. Install her via composer.
-2. Setup a cronjob to let her notify you regulary.
-3. Sit back and relax. Take a :coffee: or :tea: or :beer:
+1. [Set the package manager path](/README.md#point-at-your-managers).
+2. [Configure channels](/README.md#pick-your-channels) where to notify you.
+3. [Install via composer and setup a cronjob*](/README.md#get-debby-running) to let her notify you regularly.
+4. Sit back and relax. Take a :coffee: or :tea: or :beer:
 
 Debby will tell you when you need to get working.
 This lets you stay on top of your dependencies and deploy security releases quickly. :sunglasses:
 
 By the way, Debby will tell when she needs an update herself. You don't need to do anything. :sparkles:
 
+\* You can use Debby [without cronjobs](/README.md#without-cronjob-all-options) as well.
 
-## Installation
+---
 
-[Use Composer](http://getcomposer.org/). And use require to get the latest stable version:
+- [Point at your managers](/README.md#point-at-your-managers)
+  - [Composer](/README.md#composer)
+- [Pick your channels](/README.md#pick-your-channels)
+  - [GitHub](/README.md#github)
+  - [Trello](/README.md#trello)
+  - [Slack](/README.md#slack)
+  - [Email](/README.md#email)
+- [Get Debby running](/README.md#get-debby-running)
+  - [Without `options.json`: GitHub channel only](/README.md#without-options-json-github-channel-only)
+  - [Without cronjob: all options](/README.md#without-cronjob-all-options)
+- [FAQ](/README.md#faq)
+- [Contribute](/README.md#contribute)
+- [License](/README.md#license)
 
-``` sh
-composer require alsvanzelf/debby
+## Point at your managers
+
+Debby can check multiple package manager. Although at the moment, she just knows about one. Composer.
+If you know want to add others, you're welcome to [contribute](/README.md#contribute).
+
+#### Composer
+
+To check Composer nothing special is needed.
+
+If you don't run Debby from her vendor directory, you'll need to add an `root_dir` option.
+This tells Debby where to find the `composer.json`/`lock` files.
+
+``` json
+{
+	"root_dir": "/path/to/project/"
+}
 ```
 
+## Pick your channels
 
-## Getting started
+Debby can communicate via multiple channels. Mostly, you'll only want to setup a single one. But multiple at the same time is not a problem.
 
-There are three ways to talk to Debby.
+#### GitHub
 
-#### Out of the box: GitHub issues
+Debby creates an issue at your GitHub repository for each updatable package.
 
-Set up a cron to run debby periodically.
-You just provide the repository and your personal access token.
+Getting started:
 
-`0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token`
+1. [Generate a personal access token](https://github.com/settings/tokens) in your GitHub settings.
+2. Add an `notify_github` option:
 
-This will create issues on that repository for packages that need updates.
+  ``` json
+  {
+  	"notify_github": {
+  		"repository": "example/project",
+  		"token": "personal access token"
+  	}
+  }
+  ```
 
-#### All options
+#### Trello
 
-If you want to email the updatable packages, or adjust the default options, provide the path of a options file.
+Debby adds a card in your Trello board for each updatable package.
 
-`0 8 * * Mon php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby-options.json`
+Getting started:
 
-See [Options](/README.md#Options) for all possible options.
+1. [Authenticate at Trello](https://trello.com/1/authorize?name=Debby&expiration=never&scope=read,write&response_type=token&key=9b174ff1ccf5ca94f1c181bc3d802d4b) and copy the token.
+2. Decide which list in your board should get the cards.
+3. Open a card currently in that list (or create one temporarly), add `.json` to your browser address bar and go.
+4. Look for `"idList":` and copy the id behind it.
+5. Add an `notify_trello` option:
 
-#### Custom
+  ``` json
+  {
+  	"notify_trello": {
+  		"list": "list id",
+  		"token": "personal token"
+  	}
+  }
+  ```
 
-You can also call debby from php and do what every you want.
+#### Slack
+
+Debby sends a message to a Slack channel for each updatable package.
+If multiple packages are found updatable in one run, it adds a single message for all.
+
+Getting started:
+
+It should contain a single `webhook` key. Get it from [Slack's App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
+
+1. [Install an incoming webhook](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks) on your team's channel.
+2. Copy the "Webhook URL", it looks like `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`.
+3. You don't need to adjust any other setting on the webhook.
+4. Add an `notify_slack` option:
+
+  ``` json
+  {
+  	"notify_slack": {
+  		"webhook": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+  	}
+  }
+  ```
+
+#### Email
+
+Debby sends an email to your inbox with a list of currently updatable packages.
+
+Getting started:
+
+1. Decide on the recipient of the messages.
+2. Collect login details for your SMTP server.
+3. Add an `notify_email` option:
+
+  ``` json
+  {
+  	"notify_email": {
+  		"recipient": "devops@example.com",
+  		"host": "smtp.example.com",
+  		"port": 587,
+  		"security": "ssl",
+  		"user": "devops@example.com",
+  		"pass": "password"
+  	}
+  }
+  ```
+
+## Get Debby running
+
+0. Go to your project: `cd /var/www/`
+1. Install Debby: `composer require alsvanzelf/debby`
+2. Define your options: `nano debby.json`
+
+  ``` json
+  {
+  	"root_dir": "/path/to/project/",
+  	"notify_github": {
+  		"repository": "example/project",
+  		"token": "user token"
+  	},
+  	"notify_slack": {
+  		"webhook": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+  	}
+  }
+  ```
+
+3. Run regularly: `crontab -e`
+
+  ``` sh
+  0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby.json
+  ```
+
+See [example/options.json](/example/options.json) for a complete example.
+
+#### Without `options.json`: GitHub channel only
+
+If you only want to notify via [GitHub issues](/README.md#github), you can setup Debby without `options.json`.
+Just provide the repository and your personal access token directly to the crontab:
+
+``` sh
+0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token
+```
+
+#### Without cronjob: all options
+
+You can also call Debby from php and do what every you want.
 
 ``` php
-require_once(__DIR__.'/vendor/autoload.php');
-
-use alsvanzelf\debby;
-
 $options = [
-	'root_dir'      => '/path/to/project/',
 	'notify_github' => [
 		'repository' => 'example/project',
 		// ...
-	],
-	'notify_trello' => [
-		'list' => '...',
-		// ...
-	],
-	'notify_slack' => [
-		'webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
 	],
 	'notify_email'  => [
 		'recipient' => 'devops@example.com',
@@ -78,19 +196,6 @@ $debby->notify($packages);
 See [example/custom.php](/example/custom.php) for a complete example.
 
 
-## Options
-
-Option | Type | Default | Explanation
------- | ---- | ------- | -----------
-`root_dir` | `string` | one directory above `vendor/` | Root directory of the project.
-`notify_github` | `array` | `null` | Supply to create issues for each package update. It should contain keys for: <ul><li>`repository`: i.e. `lode/debby`</li><li>`token`: a personal access token, [generate one in your settings](https://github.com/settings/tokens)</li></ul>
-`notify_trello` | `array` | `null` | Supply to add cards to a Trello list for each package update. It should contain keys for: <ul><li>`list`: get this by adding `.json` to an existing card and look for `"idList":`</li><li>`token`: a personal token, [authenticate for Debby](https://trello.com/1/authorize?name=Debby&expiration=never&scope=read,write&response_type=token&key=9b174ff1ccf5ca94f1c181bc3d802d4b) to get one.</ul>
-`notify_slack`| `array` | `null` | Supply to send messages to a Slack channel with the updatable packages. It should contain a single `webhook` key. Get it from [Slack's App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
-`notify_email` | `array` | `null` | Supply to send an email with the updatable packages. It should contain keys for: <ul><li>`recipient`: i.e. `devops@example.com`</li><li>`host`: smtp hostname</li><li>`port`: an int</li><li>`security`: i.e. `ssl`, `tls`</li><li>`user`: username to login to the smtp host, usually the same as the senders email address</li><li>`pass`: plain text password</li></ul>
-
-See [example/options.json](/example/options.json) for a complete example.
-
-
 ## FAQ
 
 #### Why does Debby tell me to update above the composer constraint?
@@ -104,12 +209,12 @@ You don't trust her? She's open source you know. Anyway, Debby runs just fine in
 Just take into account that Debby will run just as fine while bisecting on old commits and notify you for updates since then.
 
 
-## Contributing
+## Contribute
 
 Pull Requests or issues are welcome!
 
 
-## Licence
+## License
 
 [MIT](/LICENSE)
 

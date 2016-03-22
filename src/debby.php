@@ -18,6 +18,8 @@ private static $version;
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
  *        @var string $notify_github  create issues on github for package updates
+ *        @var string $notify_trello  add cards in trello for package updates
+ *        @var string $notify_slack   message package updates to a slack channel
  *        @var array  $notify_email   email package updates, this sends all in one
  * }
  */
@@ -87,7 +89,9 @@ public function check() {
  * send the updatable packages to defined destinations
  * 
  * currently accepted via generic options:
- * - github: creates issues per result
+ * - github: creates issues per package
+ * - trello: add cards per package
+ * - slack: sends messages for a single or multiple packages
  * - email: sends an email with all updatable packages
  * 
  * @param  array<package> $packages as returned by ->check()
@@ -102,6 +106,16 @@ public function notify(array $packages) {
 	if (!empty($this->options['notify_github'])) {
 		$github = new channel\github($this->options['notify_github']);
 		$github->send($packages);
+	}
+	
+	if (!empty($this->options['notify_trello'])) {
+		$trello = new channel\trello($this->options['notify_trello']);
+		$trello->send($packages);
+	}
+	
+	if (!empty($this->options['notify_slack'])) {
+		$slack = new channel\slack($this->options['notify_slack']);
+		$slack->send($packages);
 	}
 	
 	if (!empty($this->options['notify_email'])) {

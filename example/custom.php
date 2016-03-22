@@ -5,12 +5,19 @@ require_once(__DIR__.'/vendor/autoload.php');
 use alsvanzelf\debby;
 
 $options = [
-	'root_dir'       => '/path/to/project/',
-	'notify_github'  => [
+	'root_dir'      => '/path/to/project/',
+	'notify_github' => [
 		'repository' => 'example/project',
 		'token'      => 'user token',
 	],
-	'notify_email'     => [
+	'notify_trello' => [
+		'list'  => 'list id',
+		'token' => 'user token',
+	],
+	'notify_slack'  => [
+		'webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+	],
+	'notify_email'  => [
 		'recipient' => 'devops@example.com',
 		'host'      => 'smtp.example.com',
 		'port'      => 587,

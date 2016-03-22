@@ -24,7 +24,7 @@ By the way, Debby will tell when she needs an update herself. You don't need to 
   - [Slack](/README.md#slack)
   - [Email](/README.md#email)
 - [Get Debby running](/README.md#get-debby-running)
-  - [Without `options.json`: GitHub channel only](/README.md#without-options-json-github-channel-only)
+  - [Without `options.json`: GitHub channel only](/README.md#without-optionsjson-github-channel-only)
   - [Without cronjob: all options](/README.md#without-cronjob-all-options)
 - [FAQ](/README.md#faq)
 - [Contribute](/README.md#contribute)
@@ -97,8 +97,6 @@ Debby sends a message to a Slack channel for each updatable package.
 If multiple packages are found updatable in one run, it adds a single message for all.
 
 Getting started:
-
-It should contain a single `webhook` key. Get it from [Slack's App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
 
 1. [Install an incoming webhook](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks) on your team's channel.
 2. Copy the "Webhook URL", it looks like `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`.

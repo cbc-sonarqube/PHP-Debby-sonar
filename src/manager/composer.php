@@ -157,7 +157,7 @@ public function find_updatable_packages() {
 			$package_info = shell_exec('cd '.$this->root_dir.' && '.$this->executable.' show -a '.escapeshellarg($package->get_name()));
 			preg_match($version_regex, $package_info, $latest_version);
 			if (empty($latest_version)) {
-				$e = new exception('can not find out latest release for '.$package_name);
+				$e = new exception('can not find out latest release for '.$package->get_name());
 				$e->stop();
 			}
 			

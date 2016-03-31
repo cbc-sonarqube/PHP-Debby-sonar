@@ -157,7 +157,7 @@ public function notify(array $packages) {
 			'latest_version' => $package->get_latest_version(),
 			'notified'       => time(),
 		);
-		$this->cache->cache($package->get_cache_key());
+		$this->cache->cache($package->get_cache_key(), $cache_value);
 	}
 	
 	return count($packages);

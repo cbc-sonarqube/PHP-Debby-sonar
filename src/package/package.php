@@ -50,6 +50,13 @@ public function get_installed_version();
 public function get_latest_version();
 
 /**
+ * get a unique key for caching
+ * 
+ * @return string
+ */
+public function get_cache_key();
+
+/**
  * check if the given $new_version, is newer than in the currently installed version
  * 
  * @param  string  $new_version

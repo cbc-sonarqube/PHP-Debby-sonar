@@ -32,7 +32,7 @@ public function __construct(array $options=[]) {
 		CURLOPT_SSL_VERIFYHOST => 2,
 		CURLOPT_HTTPHEADER     => [
 			'Content-type: application/json',
-			'User-Agent: Debby/'.debby\debby::get_version().' (https://github.com/lode/debby)',
+			'User-Agent: Debby/'.debby\debby::VERSION.' (https://github.com/lode/debby)',
 		],
 	];
 	

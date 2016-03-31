@@ -7,10 +7,14 @@ use alsvanzelf\debby\channel;
 
 class debby {
 
+/**
+ * debby's own version
+ * used mainly in user agent strings when contacting our channels
+ */
+const VERSION = '0.9.0';
+
 private $options;
 private $cache;
-
-private static $version;
 
 /**
  * make changes to default behavior
@@ -39,21 +43,6 @@ public function __construct(array $options=[]) {
 	}
 	
 	$this->cache = new cache($this->options['cache_file']);
-}
-
-/**
- * get debby's current version
- * useful for outgoing user-agents
- * 
- * @return string i.e. 'v0.7'
- */
-public static function get_version() {
-	if (empty(self::$version)) {
-		$latest_tag    = shell_exec('git describe --abbrev=0 --tags');
-		self::$version = trim($latest_tag);
-	}
-	
-	return self::$version;
 }
 
 /**

@@ -36,7 +36,7 @@ public function __construct(array $options=[]) {
 		CURLOPT_HTTPHEADER     => [
 			'Accept: application/vnd.github.v3+json',
 			'Authorization: token '.$options['token'],
-			'User-Agent: Debby/'.debby\debby::get_version().' (https://github.com/lode/debby)',
+			'User-Agent: Debby/'.debby\debby::VERSION.' (https://github.com/lode/debby)',
 		],
 	];
 	

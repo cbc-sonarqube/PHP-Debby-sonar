@@ -8,6 +8,7 @@ abstract class abstract_package implements package {
 
 protected $manager;
 protected $name;
+protected $cache_key;
 protected $required_version;
 protected $installed_version;
 protected $latest_version;
@@ -39,6 +40,19 @@ public function get_name() {
  */
 public function get_manager_name() {
 	return $this->manager->get_name();
+}
+
+/**
+ * get a unique key for caching
+ * 
+ * @return string
+ */
+public function get_cache_key() {
+	if (is_null($this->cache_key)) {
+		$this->cache_key = $this->get_manager_name().':'.$this->get_name();
+	}
+	
+	return $this->cache_key;
 }
 
 /**

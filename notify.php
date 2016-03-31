@@ -52,11 +52,15 @@ else {
 $debby = new debby\debby($options);
 
 $packages = $debby->check();
-$debby->notify($packages);
+$notified = $debby->notify($packages);
 
 // give feedback when testing it manually via cli
 if (isset($_SERVER['TERM'])) {
 	echo (empty($packages)) ? 'No updates found'.PHP_EOL : count($packages).' updates found'.PHP_EOL;
+	
+	if ($notified !== count($packages)) {
+		echo (count($packages) - $notified).' not notified again'.PHP_EOL;
+	}
 }
 
 exit(0);

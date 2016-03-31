@@ -202,10 +202,11 @@ See [example/custom.php](/example/custom.php) for a complete example.
 Debby will tell you about an update i.e. `2.0` when you require `^1.5`. If you would run `composer update` yourself, that update won't show up. However, new releases might contain security updates also affecting your older version. For now, Debby defaults to telling you all these updates.
 You're welcome to help making Debby smarter in this, i.e. checking for security updates.
 
-### I don't want to run Debby in production
+#### I don't want to run Debby in production
 
 You don't trust her? She's open source you know. Anyway, Debby runs just fine in a testing environment. No hard feelings.
 Just take into account that Debby will run just as fine while bisecting on old commits and notify you for updates since then.
+Also be-aware that Debby caches earlier notified packages, which might cause trouble when switching branches backwards.
 
 
 ## Contribute

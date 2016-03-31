@@ -5,11 +5,11 @@ namespace alsvanzelf\debby;
 class exception extends \Exception {
 
 /**
- * terminate the cli, explaining why the exception was thrown
+ * echo to stdout why the exception was thrown
  * 
  * @return void
  */
-public function stop() {
+public function log() {
 	if ($this->getCode()) {
 		echo '#'.$this->getCode().': ';
 	}
@@ -18,7 +18,17 @@ public function stop() {
 	echo PHP_EOL;
 	echo get_class($this).' @ '.$this->getFile().':'.$this->getLine().PHP_EOL;
 	echo $this->getTraceAsString().PHP_EOL;
-	
+}
+
+/**
+ * terminate the cli, explaining why the exception was thrown
+ * 
+ * @see ->log()
+ * 
+ * @return void
+ */
+public function stop() {
+	$this->log();
 	exit(1);
 }
 

@@ -8,6 +8,7 @@ use alsvanzelf\debby\channel;
 class debby {
 
 private $options;
+private $cache;
 
 private static $version;
 
@@ -17,6 +18,8 @@ private static $version;
  * @param array $options {
  *        @var string $root_dir       root directory of the project
  *                                    optional, assumes debby is loaded via composer
+ *        @var string $cache_file     path of the cache file
+ *                                    optional, defaults to `debby.cache` inside debby's vendor directory
  *        @var string $notify_github  create issues on github for package updates
  *        @var string $notify_trello  add cards in trello for package updates
  *        @var string $notify_slack   message package updates to a slack channel
@@ -28,9 +31,14 @@ public function __construct(array $options=[]) {
 	
 	$this->options = $options;
 	
+	if (empty($this->options['cache_file'])) {
+		$this->options['cache_file'] = realpath(__DIR__.'/..').'/debby.cache';
+	}
 	if (empty($this->options['root_dir'])) {
 		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
 	}
+	
+	$this->cache = new cache($this->options['cache_file']);
 }
 
 /**
@@ -94,13 +102,30 @@ public function check() {
  * - slack: sends messages for a single or multiple packages
  * - email: sends an email with all updatable packages
  * 
+ * @note builds and checks a cache of packages notified before
+ * 
  * @param  array<package> $packages as returned by ->check()
  * 
- * @return void
+ * @return int            the amount of packages which have been notified
+ *                        this is a count of the input, minus the earlier notified packages
  */
 public function notify(array $packages) {
+	// skip packages which have been notified before
+	foreach ($packages as $index => $package) {
+		if ($this->cache->contains($package->get_cache_key()) === false) {
+			continue;
+		}
+		
+		$cache = $this->cache->get($package->get_cache_key());
+		if (empty($cache['latest_version']) || $cache['latest_version'] !== $package->get_latest_version()) {
+			continue;
+		}
+		
+		unset($packages[$index]);
+	}
+	
 	if (empty($packages)) {
-		return;
+		return 0;
 	}
 	
 	if (!empty($this->options['notify_github'])) {
@@ -122,6 +147,20 @@ public function notify(array $packages) {
 		$email = new channel\email($this->options['notify_email']);
 		$email->send($packages);
 	}
+	
+	// cache the newly notified updates
+	foreach ($packages as $package) {
+		/**
+		 * @todo cache results from channels like github issue id
+		 */
+		$cache_value = array(
+			'latest_version' => $package->get_latest_version(),
+			'notified'       => time(),
+		);
+		$this->cache->cache($package->get_cache_key());
+	}
+	
+	return count($packages);
 }
 
 }

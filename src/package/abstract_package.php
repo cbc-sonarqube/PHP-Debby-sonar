@@ -2,6 +2,7 @@
 
 namespace alsvanzelf\debby\package;
 
+use alsvanzelf\debby\exception;
 use alsvanzelf\debby\manager;
 
 abstract class abstract_package implements package {

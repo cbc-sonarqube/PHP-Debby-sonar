@@ -168,7 +168,7 @@ public function find_updatable_packages() {
 			
 			if ($package->is_later_version($latest_version[1])) {
 				$package->mark_updatable($latest_version[1]);
-				$this->updatable[] = $package;
+				$this->updatable[$package->get_name()] = $package;
 			}
 		}
 	}

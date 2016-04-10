@@ -84,6 +84,11 @@ public function find_required_packages() {
 		
 		$this->required = [];
 		foreach ($composer_json['require'] as $package_name => $required_version) {
+			// skip platform packages like 'ext-curl'
+			if (strpos($package_name, '/') === false) {
+				continue;
+			}
+			
 			$package = $this->get_package_by_name($package_name);
 			$package->mark_required($required_version);
 			

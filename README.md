@@ -1,189 +1,96 @@
-# Debby
+# Debby - stay on top of your dependencies
 
 Debby checks your project dependencies and tells you when to update.
 
-1. [Set the package manager path](/README.md#point-at-your-managers).
-2. [Configure channels](/README.md#pick-your-channels) where to notify you.
-3. [Install via composer and setup a cronjob*](/README.md#get-debby-running) to let her notify you regularly.
-4. Sit back and relax. Take a :coffee: or :tea: or :beer:
+- always run the latest versions :shipit:
+- choose whether you find an update interesting
+- be able to fix security issues promptly
 
-Debby will tell you when you need to get working.
-This lets you stay on top of your dependencies and deploy security releases quickly. :sunglasses:
+In the end, you'll be more comfortable upgrading because updates can be often and small.
 
-By the way, Debby will tell when she needs an update herself. You don't need to do anything. :sparkles:
 
-\* You can use Debby [without cronjobs](/README.md#without-cronjob-all-options) as well.
+## Super fast setup :rocket:
 
----
+``` sh
+composer require alsvanzelf/debby
+crontab -l | { cat; echo "0 8 * * * php /www/vendor/alsvanzelf/debby/notify.php repo token"; } | crontab -
+```
 
-- [Point at your managers](/README.md#point-at-your-managers)
-  - [Composer](/README.md#composer)
-- [Pick your channels](/README.md#pick-your-channels)
-  - [GitHub](/README.md#github)
-  - [Trello](/README.md#trello)
-  - [Slack](/README.md#slack)
-  - [Email](/README.md#email)
-- [Get Debby running](/README.md#get-debby-running)
-  - [Without `options.json`: GitHub channel only](/README.md#without-optionsjson-github-channel-only)
-  - [Without cronjob: all options](/README.md#without-cronjob-all-options)
-- [FAQ](/README.md#faq)
-- [Contribute](/README.md#contribute)
-- [License](/README.md#license)
+Replace `repo` with the path of your repository on GitHub (`organization/project`) and `token` with a [personal access token](https://github.com/settings/tokens).
+This runs Debby every day at 8 o'clock and create issues whenever updates are found.
 
-## Point at your managers
 
-Debby can check multiple package manager. Although at the moment, she just knows about one. Composer.
-If you know want to add others, you're welcome to [contribute](/README.md#contribute).
+## Setup in a normal pace, with a bit more explanation
 
-#### Composer
+1. [Install Debby](/README.md#1-installation) via Composer
+2. [Configure notifications](/README.md#2-configure-notifications) to GitHub, Trello, Slack, email
+3. [Setup a cronjob](/README.md#3-fire-up) (there's other ways as well, see below)
 
-To check Composer nothing special is needed.
+Also check out [the questions Debby gets asked frequently](/README.md#faq).
+Or checkout :blue_book: [the documentation](https://github.com/lode/debby/wiki).
 
-If you don't run Debby from her vendor directory, you'll need to add an `root_dir` option.
-This tells Debby where to find the `composer.json`/`lock` files.
+
+#### 1. Installation
+
+[Use Composer](http://getcomposer.org/). And use require to get the latest stable version:
+
+```
+composer require alsvanzelf/debby
+```
+
+
+#### 2. Configure notifications
+
+Debby can talk to
+![GitHub issues](/channels/github.png) GitHub issues,
+![Trello](/channels/trello.png) Trello,
+![Slack](/channels/slack.png) Slack,
+and ![Email](/channels/email.png) email.
+
+Pick the channel(s) that you want notifications on,
+make a debby.json configuration file with the access details for these channels,
+and place it in the root of your project.
+
+I.e. for notifying to GitHub issues, use:
 
 ``` json
 {
-	"root_dir": "/path/to/project/"
+	"notify_github": {
+		"repository": "example/project",
+		"token": "personal access token"
+	}
 }
 ```
 
-## Pick your channels
+See the :blue_book: [wiki](https://github.com/lode/debby/wiki/Pick-your-channels) on the specific configuration.
 
-Debby can communicate via multiple channels. Mostly, you'll only want to setup a single one. But multiple at the same time is not a problem.
 
-#### GitHub
+#### 3. Fire up
 
-Debby creates an issue at your GitHub repository for each updatable package.
+Setup a cronjob to run the built-in notify script passing it your configuration file.
 
-Getting started:
-
-1. [Generate a personal access token](https://github.com/settings/tokens) in your GitHub settings.
-2. Choose the scope `public_repo` ("Access public repositories") or `repo` ("Full control of private repositories").
-3. Add an `notify_github` option:
-
-  ``` json
-  {
-  	"notify_github": {
-  		"repository": "example/project",
-  		"token": "personal access token"
-  	}
-  }
-  ```
-
-#### Trello
-
-Debby adds a card in your Trello board for each updatable package.
-
-Getting started:
-
-1. [Authenticate at Trello](https://trello.com/1/authorize?name=Debby&expiration=never&scope=read,write&response_type=token&key=9b174ff1ccf5ca94f1c181bc3d802d4b) and copy the token.
-2. Decide which list in your board should get the cards.
-3. Open a card currently in that list (or create one temporarly), add `.json` to your browser address bar and go.
-4. Look for `"idList":` and copy the id behind it.
-5. Add an `notify_trello` option:
-
-  ``` json
-  {
-  	"notify_trello": {
-  		"list": "list id",
-  		"token": "personal token"
-  	}
-  }
-  ```
-
-#### Slack
-
-Debby sends a message to a Slack channel for each updatable package.
-If multiple packages are found updatable in one run, it adds a single message for all.
-
-Getting started:
-
-1. [Install an incoming webhook](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks) on your team's channel.
-2. Copy the "Webhook URL", it looks like `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`.
-3. You don't need to adjust any other setting on the webhook.
-4. Add an `notify_slack` option:
-
-  ``` json
-  {
-  	"notify_slack": {
-  		"webhook": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-  	}
-  }
-  ```
-
-#### Email
-
-Debby sends an email to your inbox with a list of currently updatable packages.
-
-Getting started:
-
-1. Decide on the recipient of the messages.
-2. Collect login details for your SMTP server.
-3. Add an `notify_email` option:
-
-  ``` json
-  {
-  	"notify_email": {
-  		"recipient": "devops@example.com",
-  		"host": "smtp.example.com",
-  		"port": 587,
-  		"security": "ssl",
-  		"user": "devops@example.com",
-  		"pass": "password"
-  	}
-  }
-  ```
-
-## Get Debby running
-
-0. Go to your project: `cd /var/www/`
-1. Install Debby: `composer require alsvanzelf/debby`
-2. Define your options: `nano debby.json`
-
-  ``` json
-  {
-  	"root_dir": "/path/to/project/",
-  	"notify_github": {
-  		"repository": "example/project",
-  		"token": "user token"
-  	},
-  	"notify_slack": {
-  		"webhook": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-  	}
-  }
-  ```
-
-3. Run regularly: `crontab -e`
-
-  ``` sh
-  0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby.json
-  ```
-
-See [example/options.json](/example/options.json) for a complete example.
-
-#### Without `options.json`: GitHub channel only
-
-If you only want to notify via [GitHub issues](/README.md#github), you can setup Debby without `options.json`.
-Just provide the repository and your personal access token directly to the crontab:
+Run `crontab -e` and add:
 
 ``` sh
-0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php example/project personal-access-token
+0 8 * * * php /var/www/vendor/alsvanzelf/debby/notify.php /var/www/debby.json
 ```
 
-#### Without cronjob: all options
+:thumbsup:
 
-You can also call Debby from php and do what every you want.
+Sit back and relax. Take a :coffee: or :tea: or :beer:
+
+
+## FAQ
+
+#### Can I run it without a cronjob?
+
+You can call Debby from php and do what every you want.
 
 ``` php
 $options = [
 	'notify_github' => [
 		'repository' => 'example/project',
-		// ...
-	],
-	'notify_email'  => [
-		'recipient' => 'devops@example.com',
-		// ...
+		'token'      => 'personal access token',
 	],
 ];
 $debby = new debby\debby($options);
@@ -195,18 +102,47 @@ $debby->notify($packages);
 See [example/custom.php](/example/custom.php) for a complete example.
 
 
-## FAQ
+#### I don't want to run Debby in production
+
+You don't trust her? She's open source you know. Anyway, Debby runs just fine in a testing environment. No hard feelings. :heart:
+Just take into account that Debby will run just as fine while bisecting on old commits and notify you for updates since then.
+Also be-aware that Debby caches earlier notified packages, which might cause trouble when switching branches backwards.
+
+
+#### Debby can not determine manage paths?
+_or_
+#### Can I have composer.json outside the project root?
+_or_
+#### I don't want to check [Composer|npm|...]
+
+By default, Debby checks all package managers it can find. In some situations this doesn't work. I.e.:
+
+- Debby is not installed via Composer herself.
+- The package manager json files are at custom locations.
+- You have a package manager which you *don't* want to have checked.
+- You use files which look like they are from package managers (i.e. a package.json when you don't use npm).
+
+Then you'll need to adjust configuration to specify which managers you want to check, and where to find them.
+
+I.e. for notifying Composer, use:
+
+``` json
+{
+	"check_composer": {
+		"path": "/path/to/composerjson/"
+	}
+}
+```
+
+See the :blue_book: [wiki](https://github.com/lode/debby/wiki/Point-at-your-managers) on the specific configuration.
+
+
 
 #### Why does Debby tell me to update above the composer constraint?
 
-Debby will tell you about an update i.e. `2.0` when you require `^1.5`. If you would run `composer update` yourself, that update won't show up. However, new releases might contain security updates also affecting your older version. For now, Debby defaults to telling you all these updates.
+Debby will tell you about an update i.e. `2.0` when you require `^1.5`. If you would run `composer update` yourself, that update won't show up.
+However, new releases might contain security updates also affecting your older version. For now, Debby defaults to telling you all these updates.
 You're welcome to help making Debby smarter in this, i.e. checking for security updates.
-
-#### I don't want to run Debby in production
-
-You don't trust her? She's open source you know. Anyway, Debby runs just fine in a testing environment. No hard feelings.
-Just take into account that Debby will run just as fine while bisecting on old commits and notify you for updates since then.
-Also be-aware that Debby caches earlier notified packages, which might cause trouble when switching branches backwards.
 
 
 ## Contribute
@@ -219,4 +155,6 @@ Pull Requests or issues are welcome!
 [MIT](/LICENSE)
 
 
-:girl:
+# :girl:
+
+By the way, Debby will tell when she needs an update herself. You don't need to do anything. :sparkles:

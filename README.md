@@ -48,7 +48,7 @@ Debby can talk to
 and ![Email](/channels/email.png) email.
 
 Pick the channel(s) that you want notifications on,
-make a debby.json configuration file with the access details for these channels,
+make a `debby.json` configuration file with the access details for these channels,
 and place it in the root of your project.
 
 I.e. for notifying to GitHub issues, use:
@@ -124,7 +124,7 @@ By default, Debby checks all package managers it can find. In some situations th
 
 Then you'll need to adjust configuration to specify which managers you want to check, and where to find them.
 
-I.e. for notifying Composer, use:
+I.e. for notifying Composer, add the following to your `debby.json`:
 
 ``` json
 {

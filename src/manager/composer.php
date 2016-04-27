@@ -2,6 +2,7 @@
 
 namespace alsvanzelf\debby\manager;
 
+use alsvanzelf\debby;
 use alsvanzelf\debby\exception;
 use alsvanzelf\debby\package;
 
@@ -70,6 +71,10 @@ public function get_package_by_name($package_name) {
  */
 public function find_required_packages() {
 	if ($this->required === null) {
+		if (debby\VERBOSE) {
+			debby\debby::log('Checking '.$this->get_name().' for required packages');
+		}
+		
 		if (file_exists($this->root_dir.'composer.json') === false) {
 			$e = new exception('can not find composer.json in the root_dir');
 			$e->stop();
@@ -106,6 +111,10 @@ public function find_required_packages() {
  */
 public function find_installed_packages() {
 	if ($this->installed === null) {
+		if (debby\VERBOSE) {
+			debby\debby::log('Checking '.$this->get_name().' for installed packages');
+		}
+		
 		if (file_exists($this->root_dir.'composer.lock') === false) {
 			$e = new exception('can not find composer.lock in the root_dir');
 			$e->stop();
@@ -151,8 +160,24 @@ public function find_updatable_packages() {
 		$installed_packages = $this->find_installed_packages();
 		$required_packages  = $this->find_required_packages();
 		
+		if (debby\VERBOSE) {
+			debby\debby::log('Checking '.$this->get_name().' for updatable packages');
+		}
+		
+		if (debby\VERBOSE) {
+			$debug_index   = 0;
+			$debug_count   = count($required_packages);
+			$debug_padding = strlen($debug_count);
+		}
+		
 		$this->updatable = [];
 		foreach ($required_packages as $package) {
+			if (debby\VERBOSE) {
+				$debug_index++;
+				$debug_prefix = "\t".str_pad($debug_index, $debug_padding, $string=' ', $type=STR_PAD_LEFT).'/'.$debug_count.': ';
+				debby\debby::log($debug_prefix.$package->get_name());
+			}
+			
 			$version_regex = '/versions\s*:.+v?([0-9]+\.[0-9]+(\.[0-9]+)?)(,|$)/U';
 			if ($package->is_installed_by_reference()) {
 				$version_regex = '/source\s*:.+ ([a-f0-9]{40})$/m';

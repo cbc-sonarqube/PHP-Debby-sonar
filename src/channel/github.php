@@ -57,8 +57,16 @@ public function __destruct() {
  * @return void
  */
 public function send(array $packages) {
+	if (debby\VERBOSE) {
+		debby\debby::log('Notifying GitHub');
+	}
+	
 	foreach ($packages as $package) {
 		$this->send_single_package($package);
+	}
+	
+	if (debby\VERBOSE) {
+		debby\debby::log("\t".'Done');
 	}
 }
 

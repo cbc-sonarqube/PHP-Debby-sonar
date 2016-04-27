@@ -2,6 +2,7 @@
 
 namespace alsvanzelf\debby\channel;
 
+use alsvanzelf\debby;
 use alsvanzelf\debby\exception;
 use alsvanzelf\debby\template;
 
@@ -43,6 +44,10 @@ public function __construct(array $options=[]) {
  * @return void
  */
 public function send(array $packages) {
+	if (debby\VERBOSE) {
+		debby\debby::log('Notifying email');
+	}
+	
 	$package_lines = '';
 	foreach ($packages as $package) {
 		$template_data = [
@@ -60,6 +65,10 @@ public function send(array $packages) {
 	$body    = template::parse('email_multiple', ['packages' => $package_lines]);
 	
 	$this->send_email($subject, $body);
+	
+	if (debby\VERBOSE) {
+		debby\debby::log("\t".'Done');
+	}
 }
 
 /**

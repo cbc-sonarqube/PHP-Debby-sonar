@@ -53,6 +53,10 @@ public function __destruct() {
  * @return void
  */
 public function send(array $packages) {
+	if (debby\VERBOSE) {
+		debby\debby::log('Notifying Slack');
+	}
+	
 	if (count($packages) === 1) {
 		$text = $this->get_package_message($packages[0], $template='slack_single');
 	}
@@ -66,6 +70,10 @@ public function send(array $packages) {
 	}
 	
 	$this->send_message($text);
+	
+	if (debby\VERBOSE) {
+		debby\debby::log("\t".'Done');
+	}
 }
 
 /**

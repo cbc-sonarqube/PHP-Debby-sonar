@@ -124,13 +124,11 @@ By default, Debby checks all package managers it can find. In some situations th
 
 Then you'll need to adjust configuration to specify which managers you want to check, and where to find them.
 
-I.e. for notifying Composer, add the following to your `debby.json`:
+I.e. for checking Composer, add the following to your `debby.json`:
 
 ``` json
-{
-	"check_composer": {
-		"path": "/path/to/composerjson/"
-	}
+"check_composer": {
+	"path": "/path/to/composerjson/"
 }
 ```
 

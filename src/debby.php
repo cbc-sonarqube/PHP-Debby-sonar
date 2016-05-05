@@ -119,8 +119,8 @@ public function check() {
 	$packages = [];
 	
 	if (!empty($this->options['check_composer'])) {
-		$composer  = new manager\composer($this->options['check_composer']);
-		$packages += $composer->find_updatable_packages();
+		$composer = new manager\composer($this->options['check_composer']);
+		$packages = array_merge($packages, $composer->find_updatable_packages());
 	}
 	
 	return $packages;

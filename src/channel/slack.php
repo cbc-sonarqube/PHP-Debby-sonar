@@ -58,7 +58,7 @@ public function send(array $packages) {
 	}
 	
 	if (count($packages) === 1) {
-		$text = $this->get_package_message($packages[0], $template='slack_single');
+		$text = $this->get_package_message(reset($packages), $template='slack_single');
 	}
 	else {
 		$package_lines = '';

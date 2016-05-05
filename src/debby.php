@@ -11,7 +11,7 @@ class debby {
  * debby's own version
  * used mainly in user agent strings when contacting our channels
  */
-const VERSION = '0.9.0';
+const VERSION = '0.9.2';
 
 private $options;
 private $cache;
@@ -186,6 +186,9 @@ public function notify(array $packages) {
 	if (empty($packages)) {
 		return 0;
 	}
+	
+	// reset indexing after removing already notified updates
+	$packages = array_values($packages);
 	
 	if (!empty($this->options['notify_github'])) {
 		$github = new channel\github($this->options['notify_github']);

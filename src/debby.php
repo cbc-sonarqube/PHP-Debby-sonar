@@ -11,7 +11,7 @@ class debby {
  * debby's own version
  * used mainly in user agent strings when contacting our channels
  */
-const VERSION = '0.9.0';
+const VERSION = '0.9.2';
 
 private $options;
 private $cache;

@@ -1,6 +1,6 @@
 # Debby - stay on top of your dependencies
 
-Debby checks your project dependencies and tells you when to update.
+Debby checks your Composer & npm dependencies and tells you when to update.
 
 - always run the latest versions :shipit:
 - choose whether you find an update interesting
@@ -32,7 +32,7 @@ Or checkout :blue_book: [the documentation](https://github.com/lode/debby/wiki).
 
 #### 1. Installation
 
-[Use Composer](http://getcomposer.org/). And use require to get the latest stable version:
+[Use Composer](http://getcomposer.org/) to install Debby herself. Use require to get the latest stable version:
 
 ```
 composer require alsvanzelf/debby

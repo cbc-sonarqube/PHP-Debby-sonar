@@ -25,6 +25,7 @@ private $cache;
  *        @var string $cache_file     path of the cache file
  *                                    optional, defaults to `debby.cache` inside debby's vendor directory
  *        @var array  $check_composer check composer packages
+ *        @var array  $check_npm      check npm packages
  *        @var array  $notify_github  create issues on github for package updates
  *        @var array  $notify_trello  add cards in trello for package updates
  *        @var array  $notify_slack   message package updates to a slack channel
@@ -91,7 +92,7 @@ protected function setup_cache() {
  */
 protected function detect_managers() {
 	// when something is configured, don't use defaults
-	if (!empty($this->options['check_composer'])) {
+	if (!empty($this->options['check_composer']) || !empty($this->options['check_npm'])) {
 		return;
 	}
 	
@@ -109,6 +110,13 @@ protected function detect_managers() {
 			'path' => $root_dir,
 		];
 	}
+	
+	// check npm
+	if (file_exists($root_dir.'package.json')) {
+		$this->options['check_npm'] = [
+			'path' => $root_dir,
+		];
+	}
 }
 
 /**
@@ -122,6 +130,11 @@ public function check() {
 	if (!empty($this->options['check_composer'])) {
 		$composer = new manager\composer($this->options['check_composer']);
 		$packages = array_merge($packages, $composer->find_updatable_packages());
+	}
+	
+	if (!empty($this->options['check_npm'])) {
+		$npm      = new manager\npm($this->options['check_npm']);
+		$packages = array_merge($packages, $npm->find_updatable_packages());
 	}
 	
 	return $packages;

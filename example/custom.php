@@ -9,6 +9,9 @@ $options = [
 	'check_composer' => [
 		'path' => '/path/to/composerjson/',
 	],
+	'check_npm' => [
+		'path' => '/path/to/packagejson/',
+	],
 	'notify_github' => [
 		'repository' => 'example/project',
 		'token'      => 'user token',

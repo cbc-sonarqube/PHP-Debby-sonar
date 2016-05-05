@@ -117,6 +117,9 @@ public function notify(array $packages) {
 		return 0;
 	}
 	
+	// reset indexing after removing already notified updates
+	$packages = array_values($packages);
+	
 	if (!empty($this->options['notify_github'])) {
 		$github = new channel\github($this->options['notify_github']);
 		$github->send($packages);

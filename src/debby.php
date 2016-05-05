@@ -96,7 +96,8 @@ protected function detect_managers() {
 	}
 	
 	if (strpos(__DIR__, '/vendor/alsvanzelf/debby/src') === false) {
-		throw new exception('can not auto determine manage paths as debby is not included by composer, specify managers and their paths');
+		$e = new exception('can not auto determine manage paths as debby is not included by composer, specify managers and their paths');
+		$e->stop();
 	}
 	
 	// traverse those four directories up

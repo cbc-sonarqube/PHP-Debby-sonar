@@ -5,8 +5,13 @@ require_once(__DIR__.'/vendor/autoload.php');
 use alsvanzelf\debby;
 
 $options = [
-	'root_dir'      => '/path/to/project/',
-	'cache_file'    => './debby.cache',
+	'cache_file' => './debby.cache',
+	'check_composer' => [
+		'path' => '/path/to/composerjson/',
+	],
+	'check_npm' => [
+		'path' => '/path/to/packagejson/',
+	],
 	'notify_github' => [
 		'repository' => 'example/project',
 		'token'      => 'user token',
@@ -15,10 +20,10 @@ $options = [
 		'list'  => 'list id',
 		'token' => 'user token',
 	],
-	'notify_slack'  => [
+	'notify_slack' => [
 		'webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
 	],
-	'notify_email'  => [
+	'notify_email' => [
 		'recipient' => 'devops@example.com',
 		'host'      => 'smtp.example.com',
 		'port'      => 587,

@@ -48,18 +48,26 @@ else {
 	$e->stop();
 }
 
+// auto turn on verbose mode when testing it manually via cli
+if (isset($_SERVER['TERM']) && !isset($options['verbose'])) {
+	$options['verbose'] = 1;
+}
+
 // ignite
 $debby = new debby\debby($options);
 
 $packages = $debby->check();
+
+if (debby\VERBOSE) {
+	$log_message = (empty($packages)) ? 'No updates found' : 'Found '.count($packages).' updates';
+	debby\debby::log($log_message);
+}
+
 $notified = $debby->notify($packages);
 
-// give feedback when testing it manually via cli
-if (isset($_SERVER['TERM'])) {
-	echo (empty($packages)) ? 'No updates found'.PHP_EOL : count($packages).' updates found'.PHP_EOL;
-	
+if (debby\VERBOSE) {
 	if ($notified !== count($packages)) {
-		echo (count($packages) - $notified).' not notified again'.PHP_EOL;
+		debby\debby::log('Skipped notification of '.(count($packages) - $notified).' packages');
 	}
 }
 

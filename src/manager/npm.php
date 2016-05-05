@@ -6,10 +6,9 @@ use alsvanzelf\debby;
 use alsvanzelf\debby\exception;
 use alsvanzelf\debby\package;
 
-class composer implements manager {
+class npm implements manager {
 
 private $path;
-private $executable;
 private $packages;
 private $required;
 private $installed;
@@ -19,24 +18,16 @@ private $updatable;
  * setup the environment
  * 
  * @param array $options {
- *              @var $path where the composer.json and composer.lock are placed
+ *              @var $path where the package.json is placed
  * }
  */
 public function __construct(array $options=[]) {
 	if (empty($options['path'])) {
-		$e = new exception('can not check for composer updates without a path option');
+		$e = new exception('can not check for npm updates without a path option');
 		$e->stop();
 	}
 	
 	$this->path = $options['path'];
-	
-	/**
-	 * get composer executable
-	 */
-	$this->executable = 'composer';
-	if (file_exists($this->path.'composer.phar')) {
-		$this->executable = 'php composer.phar';
-	}
 }
 
 /**
@@ -45,7 +36,7 @@ public function __construct(array $options=[]) {
  * @return string
  */
 public function get_name() {
-	return 'composer';
+	return 'npm';
 }
 
 /**
@@ -54,11 +45,11 @@ public function get_name() {
  * this will always succeed, if one doesn't exist, one will be created
  * 
  * @param  string           $package_name in vendor/package format, i.e. 'alsvanzelf/debby'
- * @return package\composer
+ * @return package\npm
  */
 public function get_package_by_name($package_name) {
 	if (empty($this->packages[$package_name])) {
-		$this->packages[$package_name] = new package\composer($this, $package_name);
+		$this->packages[$package_name] = new package\npm($this, $package_name);
 	}
 	
 	return $this->packages[$package_name];
@@ -67,7 +58,7 @@ public function get_package_by_name($package_name) {
 /**
  * give a list of all required packages
  * 
- * @return array<package\composer>
+ * @return array<package\npm>
  */
 public function find_required_packages() {
 	if ($this->required === null) {
@@ -75,25 +66,20 @@ public function find_required_packages() {
 			debby\debby::log('Checking '.$this->get_name().' for required packages');
 		}
 		
-		if (file_exists($this->path.'composer.json') === false) {
-			$e = new exception('can not find composer.json in the path');
+		if (file_exists($this->path.'package.json') === false) {
+			$e = new exception('can not find package.json in "'.$this->path.'"');
 			$e->stop();
 		}
 		
-		$composer_json = file_get_contents($this->path.'composer.json');
-		$composer_json = json_decode($composer_json, true);
-		if (empty($composer_json['require'])) {
+		$package_json = file_get_contents($this->path.'package.json');
+		$package_json = json_decode($package_json, true);
+		if (empty($package_json['devDependencies'])) {
 			$e = new exception('there are no required packages to check');
 			$e->stop();
 		}
 		
 		$this->required = [];
-		foreach ($composer_json['require'] as $package_name => $required_version) {
-			// skip platform packages like 'ext-curl'
-			if (strpos($package_name, '/') === false) {
-				continue;
-			}
-			
+		foreach ($package_json['devDependencies'] as $package_name => $required_version) {
 			$package = $this->get_package_by_name($package_name);
 			$package->mark_required($required_version);
 			
@@ -107,7 +93,7 @@ public function find_required_packages() {
 /**
  * give a list of all installed packages
  * 
- * @return array<package\composer>
+ * @return array<package\npm>
  */
 public function find_installed_packages() {
 	if ($this->installed === null) {
@@ -115,26 +101,25 @@ public function find_installed_packages() {
 			debby\debby::log('Checking '.$this->get_name().' for installed packages');
 		}
 		
-		if (file_exists($this->path.'composer.lock') === false) {
-			$e = new exception('can not find composer.lock in the path');
-			$e->stop();
-		}
-		
-		$composer_lock = file_get_contents($this->path.'composer.lock');
-		$composer_lock = json_decode($composer_lock, true);
-		if (empty($composer_lock['packages'])) {
-			$e = new exception('lock file is missing its packages');
+		// get all current installed packages
+		$installed_packages = shell_exec('cd '.$this->path.' && npm list --dev --depth=0 --json');
+		$installed_packages = json_decode($installed_packages, true);
+		if ($installed_packages === null) {
+			$error_code    = json_last_error();
+			$error_message = exception::get_json_error_message($error_code);
+			
+			$e = new exception('unable to read list of installed npm packages, "'.$error_message.'"', $error_code);
 			$e->stop();
 		}
 		
 		$this->installed = [];
-		foreach ($composer_lock['packages'] as $package_info) {
-			$package = $this->get_package_by_name($package_info['name']);
+		if (empty($installed_packages['dependencies'])) {
+			return $this->installed;
+		}
+		
+		foreach ($installed_packages['dependencies'] as $package_name => $package_info) {
+			$package = $this->get_package_by_name($package_name);
 			$package->mark_installed($package_info['version']);
-			
-			if (strpos($package_info['version'], 'dev-') === 0) {
-				$package->mark_installed_by_reference($package_info['source']['reference']);
-			}
 			
 			$this->installed[$package->get_name()] = $package;
 		}
@@ -146,9 +131,10 @@ public function find_installed_packages() {
 /**
  * give a list of all updatable packages
  * 
- * @note this uses the composer executable to check packages for newer versions than currently installed
+ * @note this checks for the latest available version, not the 'wanted' version
+ *       this helps in keeping up-to-date about new releases
  * 
- * @return array<package\composer>
+ * @return array<package\npm>
  */
 public function find_updatable_packages() {
 	if ($this->updatable === null) {
@@ -157,42 +143,45 @@ public function find_updatable_packages() {
 		 *       instead, make calls to installed_version find out if there are installed
 		 *       and let them cache the composer.lock themselves
 		 */
-		$installed_packages = $this->find_installed_packages();
-		$required_packages  = $this->find_required_packages();
+		$this->find_required_packages();
+		$this->find_installed_packages();
 		
 		if (debby\VERBOSE) {
 			debby\debby::log('Checking '.$this->get_name().' for updatable packages');
 		}
 		
-		if (debby\VERBOSE) {
-			$debug_index   = 0;
-			$debug_count   = count($required_packages);
-			$debug_padding = strlen($debug_count);
+		// get all current outdated packages
+		$updatable_packages = shell_exec('cd '.$this->path.' && npm outdated --json');
+		$updatable_packages = json_decode($updatable_packages, true);
+		if ($updatable_packages === null) {
+			$error_code    = json_last_error();
+			$error_message = exception::get_json_error_message($error_code);
+			
+			$e = new exception('unable to read list of updatable npm packages, "'.$error_message.'"', $error_code);
+			$e->stop();
 		}
 		
 		$this->updatable = [];
-		foreach ($required_packages as $package) {
+		if (empty($updatable_packages)) {
+			return $this->updatable;
+		}
+		
+		if (debby\VERBOSE) {
+			$debug_index   = 0;
+			$debug_count   = count($updatable_packages);
+			$debug_padding = strlen($debug_count);
+		}
+		
+		foreach ($updatable_packages as $package_name => $package_info) {
+			$package = $this->get_package_by_name($package_name);
 			if (debby\VERBOSE) {
 				$debug_index++;
 				$debug_prefix = "\t".str_pad($debug_index, $debug_padding, $string=' ', $type=STR_PAD_LEFT).'/'.$debug_count.': ';
 				debby\debby::log($debug_prefix.$package->get_name());
 			}
 			
-			$version_regex = '/versions\s*:.+v?([0-9]+\.[0-9]+(\.[0-9]+)?)(,|$)/U';
-			if ($package->is_installed_by_reference()) {
-				$version_regex = '/source\s*:.+ ([a-f0-9]{40})$/m';
-			}
-			
-			// find out the latest release
-			$package_info = shell_exec('cd '.$this->path.' && '.$this->executable.' show -a '.escapeshellarg($package->get_name()));
-			preg_match($version_regex, $package_info, $latest_version);
-			if (empty($latest_version)) {
-				$e = new exception('can not find out latest release for '.$package->get_name());
-				$e->stop();
-			}
-			
-			if ($package->is_later_version($latest_version[1])) {
-				$package->mark_updatable($latest_version[1]);
+			if ($package->is_later_version($package_info['latest'])) {
+				$package->mark_updatable($package_info['latest']);
 				$this->updatable[$package->get_name()] = $package;
 			}
 		}

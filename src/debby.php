@@ -20,31 +20,23 @@ private $cache;
  * make changes to default behavior
  *
  * @param array $options {
- *        @var string $root_dir       root directory of the project
- *                                    optional, assumes debby is loaded via composer
  *        @var int    $verbose        output whats happening, currently 0 or 1
  *                                    optional, defaults to 0
  *        @var string $cache_file     path of the cache file
  *                                    optional, defaults to `debby.cache` inside debby's vendor directory
- *        @var string $notify_github  create issues on github for package updates
- *        @var string $notify_trello  add cards in trello for package updates
- *        @var string $notify_slack   message package updates to a slack channel
+ *        @var array  $check_composer check composer packages
+ *        @var array  $notify_github  create issues on github for package updates
+ *        @var array  $notify_trello  add cards in trello for package updates
+ *        @var array  $notify_slack   message package updates to a slack channel
  *        @var array  $notify_email   email package updates, this sends all in one
  * }
  */
 public function __construct(array $options=[]) {
-	$this->arrange_environment();
-	
 	$this->options = $options;
 	
-	if (empty($this->options['cache_file'])) {
-		$this->options['cache_file'] = realpath(__DIR__.'/..').'/debby.cache';
-	}
-	if (empty($this->options['root_dir'])) {
-		$this->options['root_dir'] = realpath(__DIR__.'/../../../../').'/';
-	}
-	
-	$this->cache = new cache($this->options['cache_file']);
+	$this->arrange_environment();
+	$this->setup_cache();
+	$this->detect_managers();
 }
 
 /**
@@ -78,6 +70,47 @@ protected function arrange_environment() {
 }
 
 /**
+ * determine the cache file and open up the cache
+ * this makes $this->cache available
+ * 
+ * @return void
+ */
+protected function setup_cache() {
+	if (empty($this->options['cache_file'])) {
+		$this->options['cache_file'] = realpath(__DIR__.'/..').'/debby.cache';
+	}
+	
+	$this->cache = new cache($this->options['cache_file']);
+}
+
+/**
+ * detect package managers and their location
+ * auto detection is skipped if any manager is defined in the options
+ * 
+ * @return void
+ */
+protected function detect_managers() {
+	// when something is configured, don't use defaults
+	if (!empty($this->options['check_composer'])) {
+		return;
+	}
+	
+	if (strpos(__DIR__, '/vendor/alsvanzelf/debby/src') === false) {
+		throw new exception('can not auto determine manage paths as debby is not included by composer, specify managers and their paths');
+	}
+	
+	// traverse those four directories up
+	$root_dir = realpath(__DIR__.'/../../../../').'/';
+	
+	// check composer
+	if (file_exists($root_dir.'composer.json')) {
+		$this->options['check_composer'] = [
+			'path' => $root_dir,
+		];
+	}
+}
+
+/**
  * checks packages for new releases since the installed version
  * 
  * @return array<package>
@@ -85,8 +118,10 @@ protected function arrange_environment() {
 public function check() {
 	$packages = [];
 	
-	$composer = new manager\composer($this->options);
-	$packages += $composer->find_updatable_packages();
+	if (!empty($this->options['check_composer'])) {
+		$composer  = new manager\composer($this->options['check_composer']);
+		$packages += $composer->find_updatable_packages();
+	}
 	
 	return $packages;
 }

@@ -8,7 +8,7 @@ interface manager {
  * setup the environment
  * 
  * @param array $options {
- *              @var $root_dir
+ *              @var $path
  * }
  */
 public function __construct(array $options=[]);

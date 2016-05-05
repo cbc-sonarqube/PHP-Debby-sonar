@@ -1,6 +1,8 @@
 {
-	"root_dir": "/path/to/project/",
 	"cache_file": "./debby.cache",
+	"check_composer": {
+		"path": "/path/to/composerjson/"
+	},
 	"notify_github": {
 		"repository": "example/project",
 		"token": "user token"

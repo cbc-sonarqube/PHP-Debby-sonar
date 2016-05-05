@@ -8,7 +8,7 @@ use alsvanzelf\debby\package;
 
 class composer implements manager {
 
-private $root_dir;
+private $path;
 private $executable;
 private $packages;
 private $required;
@@ -19,22 +19,22 @@ private $updatable;
  * setup the environment
  * 
  * @param array $options {
- *              @var $root_dir where the composer.json and composer.lock are placed
+ *              @var $path where the composer.json and composer.lock are placed
  * }
  */
 public function __construct(array $options=[]) {
-	if (empty($options['root_dir'])) {
-		$e = new exception('can not check for composer updates without a root_dir option');
+	if (empty($options['path'])) {
+		$e = new exception('can not check for composer updates without a path option');
 		$e->stop();
 	}
 	
-	$this->root_dir = $options['root_dir'];
+	$this->path = $options['path'];
 	
 	/**
 	 * get composer executable
 	 */
 	$this->executable = 'composer';
-	if (file_exists($this->root_dir.'composer.phar')) {
+	if (file_exists($this->path.'composer.phar')) {
 		$this->executable = 'php composer.phar';
 	}
 }
@@ -75,12 +75,12 @@ public function find_required_packages() {
 			debby\debby::log('Checking '.$this->get_name().' for required packages');
 		}
 		
-		if (file_exists($this->root_dir.'composer.json') === false) {
-			$e = new exception('can not find composer.json in the root_dir');
+		if (file_exists($this->path.'composer.json') === false) {
+			$e = new exception('can not find composer.json in the path');
 			$e->stop();
 		}
 		
-		$composer_json = file_get_contents($this->root_dir.'composer.json');
+		$composer_json = file_get_contents($this->path.'composer.json');
 		$composer_json = json_decode($composer_json, true);
 		if (empty($composer_json['require'])) {
 			$e = new exception('there are no required packages to check');
@@ -115,12 +115,12 @@ public function find_installed_packages() {
 			debby\debby::log('Checking '.$this->get_name().' for installed packages');
 		}
 		
-		if (file_exists($this->root_dir.'composer.lock') === false) {
-			$e = new exception('can not find composer.lock in the root_dir');
+		if (file_exists($this->path.'composer.lock') === false) {
+			$e = new exception('can not find composer.lock in the path');
 			$e->stop();
 		}
 		
-		$composer_lock = file_get_contents($this->root_dir.'composer.lock');
+		$composer_lock = file_get_contents($this->path.'composer.lock');
 		$composer_lock = json_decode($composer_lock, true);
 		if (empty($composer_lock['packages'])) {
 			$e = new exception('lock file is missing its packages');
@@ -184,7 +184,7 @@ public function find_updatable_packages() {
 			}
 			
 			// find out the latest release
-			$package_info = shell_exec('cd '.$this->root_dir.' && '.$this->executable.' show -a '.escapeshellarg($package->get_name()));
+			$package_info = shell_exec('cd '.$this->path.' && '.$this->executable.' show -a '.escapeshellarg($package->get_name()));
 			preg_match($version_regex, $package_info, $latest_version);
 			if (empty($latest_version)) {
 				$e = new exception('can not find out latest release for '.$package->get_name());

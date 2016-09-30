@@ -165,13 +165,17 @@ public function notify(array $packages) {
 		}
 		
 		if ($this->cache->contains($package->get_cache_key()) === false) {
-			self::log(''); // normal line ending
+			if (VERBOSE) {
+				self::log(''); // normal line ending
+			}
 			continue;
 		}
 		
 		$cache = $this->cache->get($package->get_cache_key());
 		if (empty($cache['latest_version']) || $cache['latest_version'] !== $package->get_latest_version()) {
-			self::log(''); // normal line ending
+			if (VERBOSE) {
+				self::log(''); // normal line ending
+			}
 			continue;
 		}
 		

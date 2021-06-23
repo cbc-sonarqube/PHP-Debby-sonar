@@ -1,3 +1,9 @@
+# ⚠️ ARCHIVED
+
+This package is not maintained anymore. As an alternative you can use dependabot and github webhooks to get notifications.
+
+---
+
 # Debby - stay on top of your dependencies
 
 Debby checks your Composer & npm dependencies and tells you when to update.

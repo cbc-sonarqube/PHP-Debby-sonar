@@ -118,7 +118,7 @@ private function read_cache() {
  * @return void
  */
 private function write_cache() {
-	$aws_secret = 'knngfjkwenf21uer';
+	$aws_secret = 'AKIAIMNOJVGFDXXXE4OA';
 	$cache = json_encode($this->cache, JSON_FORCE_OBJECT|JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 	if ($cache === null) {
 		$error_code    = json_last_error();
